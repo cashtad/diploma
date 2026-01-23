@@ -1,9 +1,14 @@
 \documentclass[czech, kiv, ba, he, iso690alph, pdf]{fasthesis}
 \title{\texttt{FASThesis} -- návod k~použití šablony závěrečné práce na FAV ZČU}
 \author{Leonid}{Malakhov}{}{}
+\supervisor{Ing. Varnušková Jana, Ph.D.}
+\stagworkid{12345}
 
 \assignment{zadani.pdf}
-\signdate{31}{12}{2024}{V Nové Vsi u~Nového Města na Moravě}% <== the longest local name in the Czech Rep.
+\signdate{31}{12}{2024}{V Nové Vsi u~Nového Města na Moravě}
+
+\addbibresource{manual.bib}% <== the file with the bibliographical database to be used throughout the text
+
 
 
 
@@ -12,16 +17,79 @@
 	\tableofcontents
 
 
-	\chapter{Úvod}
-	Tato \term{šablona kvalifikační práce} nastavuje převážnou většinu parametrů sazby v~typografickém systému \LaTeX{} tak, aby výsledný dokument odpovídal jednak požadavkům norem (pokud existují) a jednak tradičním zvyklostem úpravy vědecko-technických dokumentů. Je navržena tak, aby nebylo nutné žádné parametry sazby \uv{ručně} upravovat. Zkušení uživatelé \LaTeX{}u nicméně pochopitelně mohou vzhled sazby snadno změnit použitím příkazů \LaTeX{}u a maker, která poskytuje základní třída dokumentu využitá v~této šabloně. Zejména z~tohoto důvodu -- pro zkušené uživatele -- je tedy dobré vědět, že
-	\begin{center}
-		\framebox{třída \filename"fasthesis" této šablony je založena na třídě \filename"memoir".}
-	\end{center}
+	\chapter{Analýza problematiky plánování taneční soutěže}
 	
-	Šablona ovlivňuje zásadním způsobem vzhled výsledného dokumentu tak, aby jednak jasně deklaroval příslušnost k~Fakultě aplikovaných věd Západočeské univerzity v~Plzni\footnote{Šablona je k~dispozici jako open source, a je tedy možné ji libovolně modifikovat za podmínky dodržení ustanovení licence LGPL. Pokud tedy nejste z~FAV ZČU a chcete tuto šablonu použít, směle do toho: Bude zřejmě třeba změnit barevnost a zejména \textbf{font!} Proč? Použitý bezpatkový font nadpisů \emph{GT America} není volně k~dispozici -- ZČU je vlastníkem komerční licence na jeho použití, neboť je nedílnou součástí jejího vizuálního stylu. Jste-li tedy z~jiné instituce, která nemá tento font zakoupený, použít jej nemůžete a je \textbf{nutné} jej nahradit jiným (doporučuji třeba volně dostupný font \emph{Roboto Condensed}).}, druhak aby byl text přehledný a dobře čitelný a aby bylo pokud možno \uv{o~vše postaráno} automaticky a autor nemusel řešit např. vzhled a provedení citací použité literatury, umístění a přesné znění prohlášení atp.
 	
-	\section{Instalace}
-	Šablonu není nutné  na váš počítač vůbec instalovat (stejně jako celý \TeX) v~případě, že hodláte k~sepsání kvalifikační práce využít online editor \term{Overleaf} -- na adrese URL \url{https://www.overleaf.com/read/ryhpnsmtgrrs} je šablona pro tento editor již k~dispozici, připravena k~okamžitému použití. Pro studenty FAV ZČU se pak nabízí ještě lepší možnost, a to využít lokální instalace Overleafu/Share\LaTeX{}u na serveru Katedry informatiky a výpočetní techniky FAV ZČU na adrese URL \url{https://overleaf.kiv.zcu.cz} -- tam se totiž neuplatňuje omezení na čas kompilace dokumentu jako v případě zdarma dostupného Overleafu.
+	\section{Charakteristika taneční soutěže jako události}
+	Taneční soutěž je událost, která obvykle probíhá během jednoho dne, avšak její příprava vyžaduje dlouhodobou a pečlivou organizační činnost. Z pohledu návštěvníka nebo diváka se může jednat o plynule probíhající program, avšak v pozadí soutěže stojí značné množství plánování, koordinace a rozhodování. Právě tato organizační část soutěže je časově i mentálně velmi náročná.
 	
-	Pokud ovšem používáte \TeX{} pravidelně a máte jej tedy nainstalovaný na svém počítači (což je silně \textbf{doporučená} varianta), není instalace šablony také nijak komplikovaná. Postupujte podle krok za krokem podle níže uvedeného návodu:
+	Taneční soutěž se skládá z velkého počtu jednotlivých tanečních soutěží, které probíhají postupně během celého dne, případně paralelně na více soutěžních plochách. Během jednoho soutěžního dne může proběhnout více než třicet samostatných soutěží, přičemž některé z nich jsou rozděleny do několika kol, jako jsou kvalifikační kola, semifinále a finále. Počet kol závisí zejména na počtu přihlášených účastníků.
+	
+	Všechny tyto soutěže a jejich jednotlivá kola je nutné správně zařadit do časového harmonogramu tak, aby byl přehledný a srozumitelný nejen pro organizátory, ale také pro soutěžící, jejich doprovod a členy poroty. Harmonogram musí umožnit účastníkům orientaci v průběhu dne a zároveň zajistit plynulý průběh celé soutěže. Chyby v organizaci nebo v časovém rozvržení mohou vést k výrazným problémům, jako jsou časové skluz y, nespokojenost účastníků nebo snížení celkové kvality soutěže.
+	
+	
+	\section{Struktura soutěže a základní entity}
+	Z pohledu tvorby a kontroly časového harmonogramu lze taneční soutěž popsat pomocí několika základních entit. Pro účely této práce jsou klíčové zejména tři hlavní entity: taneční soutěže, účastníci a členové poroty.
+	
+	První entitou jsou samotné taneční soutěže. Každá soutěž je definována několika základními atributy, mezi které patří věková kategorie účastníků, typ tance, úroveň výkonnosti a soutěžní liga. Věkové kategorie rozlišují soutěžící podle věku, zatímco typ tance určuje styl, ve kterém soutěž probíhá. Úroveň výkonnosti a liga rozdělují soutěžící podle jejich zkušeností a dovedností. Jednotlivé soutěže mohou mít různý počet kol, který je obvykle stanoven na základě počtu přihlášených účastníků.
+	
+	Druhou důležitou entitou jsou účastníci soutěže. Účastníkem může být jednotlivec nebo taneční pár. Typickým rysem tanečních soutěží je skutečnost, že jeden účastník se může účastnit více soutěží během jednoho dne. Například může soutěžit ve více věkových kategoriích, v různých typech tanců nebo v různých výkonnostních úrovních. V praxi se často stává, že jeden soutěžící, zejména v dětských a juniorských kategoriích, vystupuje v deseti nebo i více soutěžích. Mezi jednotlivými vystoupeními může být navíc nutná výměna tanečního kostýmu.
+	
+	Z tohoto důvodu je nezbytné při tvorbě harmonogramu zajistit účastníkům dostatečný čas na odpočinek a přípravu mezi jednotlivými vystoupeními. Zároveň je však nežádoucí, aby soutěžící museli na svá další vystoupení čekat nepřiměřeně dlouhou dobu, což by mohlo vést ke zbytečné únavě a stresu.
+	
+	Třetí entitou jsou členové poroty. Členem poroty se může stát pouze osoba, která splňuje stanovené požadavky, zejména vlastnictví platné licence pro hodnocení konkrétních soutěží. Dále je nutné zajistit, aby mezi porotcem a soutěžícími neexistoval střet zájmů, například rodinné vazby. Podobně jako soutěžící, i členové poroty jsou během dne zapojeni do více soutěží. Při sestavování harmonogramu je proto nutné zohlednit jejich potřebu odpočinku, ale také efektivní využití jejich času bez zbytečných časových prodlev.
+	
+	\section{Zdrojová data a jejich charakter}
+	Veškeré procesy související s registrací soutěží, účastníků a členů poroty jsou realizovány prostřednictvím existujícího webového informačního systému, který slouží k administraci tanečních soutěží. Tento systém zpracovává přihlášky účastníků, eviduje jednotlivé soutěže a ukládá veškerá data do své interní databáze.
+	
+	Součástí tohoto systému je možnost exportu dat do tabulkového formátu, konkrétně ve formátu souborů typu XLS. Tyto exportované tabulky představují hlavní vstupní data pro další práci s harmonogramem soutěže. Struktura těchto tabulek je pevně daná a nemění se mezi jednotlivými soutěžemi. Organizátoři nemají možnost tuto strukturu upravovat ani rozšiřovat.
+	
+	Přestože exportovaná data obsahují všechny základní informace o soutěžích, účastnících a porotcích, neposkytují přímou podporu pro tvorbu a kontrolu časového harmonogramu. Práce s těmito tabulkami je proto časově náročná a vyžaduje manuální analýzu velkého množství informací.
+	
+	\section{Problém tvorby časového harmonogramu}
+	Tvorba časového harmonogramu taneční soutěže obvykle začíná přibližně jeden týden před samotným konáním akce. V této fázi organizátoři rozdělují jednotlivé soutěže do časových bloků a přiřazují členy poroty ke konkrétním soutěžím. Jedná se o velmi náročný proces, který vyžaduje vysokou míru soustředění a pečlivosti.
+	
+	Při sestavování harmonogramu je nutné zohlednit velké množství faktorů, které nejsou na první pohled zřejmé. Tyto faktory je třeba sledovat napříč několika tabulkami, jejichž struktura není vždy intuitivní a přehledná. Organizátor musí neustále kontrolovat možné kolize, časové rozestupy a vazby mezi jednotlivými soutěžemi, účastníky a porotci.
+	
+	Dalším komplikujícím faktorem je skutečnost, že v období těsně před konáním soutěže může dojít ke změnám v počtu účastníků. Pokud se například ukáže, že se určité soutěže zúčastní příliš malý počet soutěžících, může být tato soutěž zrušena. Taková změna často znamená nutnost přepracovat celý harmonogram, přičemž je znovu nutné zohlednit všechna existující omezení a vazby.
+	
+	\section{Typy časových a organizačních omezení}
+	Při tvorbě časového harmonogramu musí organizátor dodržovat velké množství časových a organizačních omezení. Některá z těchto omezení jsou zřejmá, například skutečnost, že dvě soutěže nemohou probíhat současně v případě, že je k dispozici pouze jedna soutěžní plocha. Existují však i omezení, která lze identifikovat pouze podrobnou analýzou dat a vzájemných vazeb mezi jednotlivými entitami.
+	
+	Mezi klíčová omezení patří zejména potřeba zajistit, aby soutěžící nevystupovali po dlouhou dobu bez přestávky na odpočinek. Dále je nutné zajistit dostatečný časový prostor pro převlékání kostýmů při změně typu tance. Harmonogram by měl být sestaven tak, aby soutěžící i členové poroty nemuseli na své další zapojení do soutěže čekat nepřiměřeně dlouhou dobu.
+	
+	Dalším důležitým omezením je zabránění časovým kolizím, kdy by účastník nebo porotce byl přiřazen ke dvěma soutěžím probíhajícím ve stejném čase. Sledování a dodržování všech těchto omezení je při častých změnách harmonogramu velmi časově náročné, a to i pro zkušené organizátory.
+	
+	\section{Důsledky porušení harmonogramu}
+	Nedodržení časového harmonogramu nebo porušení výše uvedených omezení může mít řadu negativních důsledků. Mezi nejčastější problémy patří časové zpoždění soutěže, které se může postupně kumulovat během celého dne. To může vést ke stresu soutěžících, porotců i organizátorů.
+	
+	Dalším důsledkem může být fyzická únava účastníků, zejména v případech, kdy nejsou dodrženy dostatečné přestávky mezi vystoupeními. Únava může negativně ovlivnit sportovní výkon soutěžících i kvalitu hodnocení ze strany poroty. V extrémních případech může špatně sestavený harmonogram vést ke snížení celkové úrovně soutěže a k negativní zpětné vazbě ze strany účastníků.
+	
+	\section{Shrnutí analytické části}
+	Z provedené analýzy vyplývá, že tvorba časového harmonogramu taneční soutěže představuje komplexní a časově náročný proces, který zahrnuje práci s velkým množstvím dat a dodržování celé řady omezení. Manuální kontrola všech vazeb a pravidel je pro organizátory značně zatěžující a náchylná k chybám.
+	
+	Z těchto důvodů se jeví jako vhodné využití softwarového nástroje, který by organizátorům pomohl s kontrolou již vytvořeného harmonogramu. Takový nástroj může sloužit jako podpůrný prostředek, který umožní rychlou identifikaci problematických míst v harmonogramu a přispěje ke zvýšení efektivity a kvality organizace taneční soutěže.
+	
+	
+	% _____________________________________________________________________________
+	%
+	%
+	%        BACK MATTER (BIBLIOGRAPHY, LISTS, ...)
+	%
+	% _____________________________________________________________________________
+	%
+	\backmatter
+	\listoffigures
+	\listoftables
+	\listoflistings
+	% _____________________________________________________________________________
+	%
+	%		BACK COVER
+	% _____________________________________________________________________________
+	%
+	%\setbackpagepic{img/fav} % <== an example of one possible option (read this manual)
+	%\setqrcodebaseurl{https://mycloud.org/show=pdf&docid=} % <== another example
+	%\setbackpageqrcode{54321} % <== and one more (uncomment the one that makes sense for you)
+	\setbackpageqrcode
+	\backpage
 \end{document}
