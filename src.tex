@@ -70,6 +70,130 @@
 	
 	Z těchto důvodů se jeví jako vhodné využití softwarového nástroje, který by organizátorům pomohl s kontrolou již vytvořeného harmonogramu. Takový nástroj může sloužit jako podpůrný prostředek, který umožní rychlou identifikaci problematických míst v harmonogramu a přispěje ke zvýšení efektivity a kvality organizace taneční soutěže.
 	
+	\chapter{Analýza požadavků a návrh systému}
+	
+	\section{Cíl práce}
+	
+	Hlavním cílem této práce je návrh a implementace softwarového nástroje, který usnadní organizátorům tanečních soutěží proces kontroly časového harmonogramu. Výsledná aplikace má sloužit jako podpůrný nástroj pro ověřování správnosti již vytvořeného harmonogramu a pro identifikaci jeho slabých míst.
+	
+	Program je zaměřen na automatickou kontrolu harmonogramu z hlediska definovaných pravidel a omezení. Na základě vstupních dat aplikace analyzuje harmonogram, vyhledává porušení jednotlivých pravidel a poskytuje přehledný výstup, který upozorňuje na problematická místa. Součástí cíle práce je také výpočet hodnotících metrik, které umožňují celkové zhodnocení kvality harmonogramu.
+	
+	Důležitým dílčím cílem je vytvoření přehledného a uživatelsky přívětivého uživatelského rozhraní. Aplikace má být snadno ovladatelná i pro uživatele s nižšími technickými znalostmi a má poskytovat srozumitelný výstup bez nutnosti další interpretace výsledků.
+	
+	Na základě hlavního cíle lze definovat následující dílčí cíle práce:
+	
+	analyzovat vstupní data a jejich strukturu,
+	
+	navrhnout systém pro kontrolu porušení harmonogramu,
+	
+	implementovat mechanismus hodnocení nalezených problémů,
+	
+	zajistit přehlednou prezentaci výsledků uživateli.
+	
+	\section{Vymezení rozsahu řešení}
+	
+	Navržený systém se zaměřuje výhradně na kontrolu a analýzu již existujícího harmonogramu. Aplikace není určena k vytváření, úpravě ani optimalizaci časového rozvrhu soutěže. Jejím úkolem je pouze nahradit manuální kontrolu harmonogramu automatizovaným procesem.
+	
+	Program nezasahuje do primárního systému, který slouží k registraci soutěží, účastníků nebo poroty. Veškerá vstupní data jsou do aplikace dodávána ve formě tabulek a aplikace s nimi pracuje pouze v režimu čtení. Vstupní data nejsou během zpracování nijak opravována ani upravována.
+	
+	Funkčnost aplikace je přímo závislá na struktuře vstupních tabulek. V případě zásadní změny formátu dat, například změny struktury tabulek generovaných registračním systémem, může být nutná úprava aplikace. Program sám o sobě neprovádí žádnou adaptaci na neznámý nebo zcela odlišný formát dat.
+	
+	Součástí řešení nejsou ani žádné návrhy optimalizačních opatření. Aplikace pouze identifikuje a klasifikuje porušení pravidel, avšak nenavrhuje konkrétní změny harmonogramu, které by vedly k jejich odstranění.
+	
+	\section{Funkční požadavky systému}
+	
+	Navrhovaný systém musí splňovat následující funkční požadavky, které definují jeho základní chování a schopnosti.
+	
+	Systém musí být schopen:
+	
+	načíst vstupní tabulky obsahující informace o soutěžích,
+	
+	načíst tabulky s údaji o účastnících a jejich registracích,
+	
+	načíst tabulku s rozdělením poroty k jednotlivým soutěžím,
+	
+	načíst tabulku s časovým harmonogramem soutěže,
+	
+	propojit data z jednotlivých tabulek na základě společných identifikátorů nebo názvů,
+	
+	provést kontrolu harmonogramu podle předem definovaných pravidel,
+	
+	identifikovat porušení těchto pravidel,
+	
+	zobrazit výsledky kontroly v přehledné a srozumitelné formě.
+	
+	Výstup systému musí uživateli jednoznačně sdělit, jaké pravidlo bylo porušeno, kde k porušení došlo a jaká je závažnost daného problému. Cílem je, aby uživatel byl schopen rychle pochopit výsledky analýzy bez nutnosti dalšího studia vstupních dat.
+	
+	\section{Nefunkční požadavky}
+	
+	Jedním z hlavních nefunkčních požadavků systému je vysoká úroveň použitelnosti. Aplikace musí být snadno instalovatelná a její ovládání musí být intuitivní. Uživatelské rozhraní má uživatele přehledně provést celým procesem kontroly harmonogramu, od načtení vstupních dat až po zobrazení výsledků.
+	
+	Dalším důležitým požadavkem je přehlednost výstupu. Výsledky analýzy musí být prezentovány tak, aby bylo na první pohled zřejmé, kde se nacházejí problematická místa v harmonogramu. Výstup by měl jasně odkazovat na konkrétní části harmonogramu, kterých se zjištěné problémy týkají.
+	
+	Z hlediska výkonu nejsou na systém kladeny vysoké nároky. Vzhledem k tomu, že se pracuje s relativně malými tabulkami, není nutné optimalizovat aplikaci pro zpracování velkých objemů dat. Důraz je kladen především na správnost a srozumitelnost výsledků.
+	
+	Systém by měl být navržen s ohledem na budoucí rozšiřitelnost. V kódu aplikace musí být umožněno snadné přidávání nových pravidel pro kontrolu harmonogramu bez nutnosti zásadních změn stávající logiky.
+	
+	Aplikace je určena pro běžné kancelářské počítače nebo notebooky. Z tohoto důvodu nesmí být náročná na hardwarové prostředky ani na speciální software třetích stran.
+	
+	\section{Vstupní a výstupní data}
+	Navrhovaný systém pracuje se strukturovanými vstupními daty ve formě tabulek. Tyto tabulky jsou generovány externími systémy nebo vytvářeny ručně organizátory soutěže. Každá tabulka má v systému jasně definovanou roli a obsahuje specifický typ informací potřebných pro kontrolu harmonogramu.
+	
+	Na vstupu aplikace přijímá celkem čtyři tabulky.
+	
+	První tabulka obsahuje informace o soutěžích. Z této tabulky je možné získat základní údaje o jednotlivých soutěžích, například jejich název, typ soutěže (například standardní nebo latinské tance), soutěžní ligu nebo jednoznačný identifikátor soutěže. Tato tabulka slouží jako základní referenční zdroj pro ostatní vstupní data.
+	
+	Druhá tabulka obsahuje informace o účastnících soutěže. V této tabulce je uvedeno, na které soutěže jsou jednotliví účastníci registrováni. Na základě těchto údajů je možné sledovat účast konkrétních osob v průběhu celého harmonogramu a ověřovat dodržení časových omezení mezi jejich vystoupeními.
+	
+	Třetí tabulka popisuje rozdělení poroty k jednotlivým soutěžím. Obsahuje informace o tom, kteří porotci jsou přiřazeni ke konkrétním soutěžím nebo jejich částem. Tato data jsou důležitá zejména pro kontrolu vytížení poroty a případných časových konfliktů.
+	
+	Čtvrtou a nejdůležitější vstupní tabulkou je tabulka s časovým harmonogramem soutěže. Tato tabulka obsahuje informace o časech začátků jednotlivých kol soutěží. Jednotlivé položky harmonogramu musí být jednoznačně propojeny se soutěžemi uvedenými v tabulce soutěží, a to buď pomocí identifikátoru, nebo shodného názvu. Bez tohoto propojení není možné provést správnou analýzu harmonogramu.
+	
+	Výstupem systému je přehledný report, který shrnuje výsledky kontroly harmonogramu. Tento report obsahuje seznam nalezených porušení pravidel, přičemž každé porušení je jasně popsáno a lokalizováno v rámci harmonogramu. Výstup jednoznačně určuje, kterého pravidla se porušení týká a kde k němu došlo, aby měl uživatel jasnou představu o povaze problému.
+	
+	Cílem výstupu není pouze identifikace chyb, ale také usnadnění jejich následné opravy. Díky jasnému označení problematických míst může autor harmonogramu rychle porozumět zjištěným nedostatkům a provést potřebné úpravy v externím nástroji, ve kterém byl harmonogram vytvořen.
+	
+	\section{Návrh architektury systému}
+	
+	Navrhovaný systém je koncipován jako modulární aplikace, jejíž architektura je rozdělena do několika samostatných částí. Každý modul systému má jasně vymezenou odpovědnost a řeší konkrétní část celkového procesu kontroly harmonogramu. Toto rozdělení přispívá k lepší přehlednosti systému a usnadňuje jeho budoucí rozšíření.
+	
+	Vstupním bodem aplikace je uživatelské rozhraní. Prostřednictvím tohoto rozhraní uživatel nahrává vstupní tabulky, vybírá sloupce a řádky důležité pro zpracování a spouští proces kontroly harmonogramu. Uživatelské rozhraní zůstává aktivní po celou dobu běhu aplikace a slouží také k prezentaci výsledků kontroly.
+	
+	Na uživatelské rozhraní navazuje modul pro načítání tabulek a základní kontrolu vstupních dat. Tento modul je zodpovědný za načtení jednotlivých tabulek, ověření jejich základní struktury a přípravu dat pro další zpracování. Cílem tohoto kroku je zajistit, aby další části systému pracovaly pouze s validními a srozumitelnými daty.
+	
+	Následujícím krokem je modul pro zpracování dat a vytvoření interní datové struktury. Tento modul propojuje informace ze všech vstupních tabulek a vytváří jednotnou reprezentaci soutěží, účastníků, poroty a časového harmonogramu. Tato datová struktura slouží jako hlavní zdroj informací pro kontrolní logiku systému.
+	
+	Samotná kontrola harmonogramu je realizována v samostatném modulu určeném pro vyhledávání porušení pravidel. Tento modul analyzuje vytvořenou datovou strukturu a ověřuje dodržení definovaných časových a organizačních omezení. Výsledkem této analýzy je seznam nalezených problémů, které jsou dále zpracovány pro výstup.
+	
+	Posledním modulem je modul pro tvorbu výstupu. Tento modul převádí nalezená porušení do přehledné formy určené pro uživatele. Výstup je navržen tak, aby jasně ukazoval, jaké pravidlo bylo porušeno a kde se problém v harmonogramu nachází.
+	
+	Důležitým aspektem navržené architektury je oddělení kontrolní logiky od uživatelského rozhraní. Díky tomu je možné v budoucnu upravovat nebo rozšiřovat kontrolní pravidla bez nutnosti zásahů do rozhraní aplikace. Architektura systému tak vytváří vhodný základ pro další rozvoj, například přidání nových pravidel nebo úpravu způsobu hodnocení harmonogramu.
+	
+	\section{Způsob hodnocení harmonogramu}
+	
+	Hodnocení časového harmonogramu je založeno na kontrole předem definovaných pravidel a omezení, která vycházejí z organizačních potřeb taneční soutěže. Cílem hodnocení není navrhovat ideální harmonogram, ale poskytnout objektivní přehled o kvalitě již vytvořeného rozvrhu a upozornit na jeho slabá místa.
+	
+	Každé kontrolní pravidlo je v systému implementováno samostatně a je možné jej při kontrole zapnout nebo vypnout podle aktuálních potřeb organizátora. Uživatel má také možnost upravit vybrané parametry pravidel, například minimální dobu odpočinku mezi vystoupeními nebo maximální přípustnou délku čekání mezi soutěžemi. Díky tomu lze systém přizpůsobit různým typům soutěží a jejich specifickým požadavkům.
+	
+	Nalezená porušení pravidel jsou v systému rozdělena do několika kategorií podle jejich závažnosti. Rozlišují se méně závažná porušení, která mají spíše informativní charakter, a závažná nebo kritická porušení, která mohou výrazně negativně ovlivnit průběh soutěže. Toto rozdělení umožňuje organizátorům lépe prioritizovat problémy, které je nutné řešit jako první.
+	
+	Každému porušení je přiřazena bodová hodnota, která odpovídá jeho závažnosti. Celkové hodnocení harmonogramu je poté vypočteno jako součet bodů všech nalezených porušení. Na základě výsledného skóre je harmonogram ohodnocen a uživateli je poskytnuta orientační informace o jeho kvalitě.
+	
+	Výstupem hodnocení je přehledný report, který obsahuje celkový počet nalezených porušení, jejich rozdělení podle jednotlivých kategorií a seznam porušení pro každé kontrolní pravidlo. U každého problému je uvedeno jeho umístění v harmonogramu, aby mohl organizátor snadno identifikovat konkrétní část rozvrhu, která vyžaduje pozornost.
+	
+	Navržený způsob hodnocení slouží především jako podpůrný nástroj pro organizátory soutěže. Poskytuje jim strukturovaný pohled na harmonogram a pomáhá snížit riziko přehlédnutí organizačních problémů, které by mohly negativně ovlivnit průběh soutěže.
+	
+	\section{Shrnutí kapitoly}
+	
+	Tato kapitola se zaměřila na analýzu požadavků a návrh systému pro automatickou kontrolu časového harmonogramu taneční soutěže. Nejprve byl definován hlavní cíl práce a vymezen rozsah navrhovaného řešení, včetně jasného určení funkcí, které systém záměrně neřeší.
+	
+	Dále byly popsány funkční a nefunkční požadavky systému, které vymezují jeho chování, použitelnost a možnosti dalšího rozšíření. Zvláštní důraz byl kladen na přehlednost výstupu, jednoduchost ovládání a flexibilitu při práci se vstupními daty.
+	
+	V další části kapitoly byla charakterizována vstupní a výstupní data systému a jejich role v procesu kontroly harmonogramu. Následně byl představen návrh architektury systému, který je založen na modulárním členění a oddělení jednotlivých odpovědností.
+	
+	Závěrem byl popsán způsob hodnocení harmonogramu, který umožňuje systematickou klasifikaci nalezených porušení a poskytuje organizátorům přehledné a srozumitelné výsledky kontroly.
+	
+	Na základě této analýzy a návrhu systému bude v následující kapitole provedena samotná implementace aplikace a ověření její funkčnosti na reálných datech z tanečních soutěží.
 	
 	% _____________________________________________________________________________
 	%
