@@ -2,12 +2,12 @@
 \title{\texttt{FASThesis} -- návod k~použití šablony závěrečné práce na FAV ZČU}
 \author{Leonid}{Malakhov}{}{}
 \supervisor{Ing. Varnušková Jana, Ph.D.}
-\stagworkid{12345}
+%\stagworkid{12345}
 
-\assignment{zadani.pdf}
-\signdate{31}{12}{2024}{V Nové Vsi u~Nového Města na Moravě}
+%\assignment{zadani.pdf}
+%\signdate{31}{12}{2024}{V Nové Vsi u~Nového Města na Moravě}
 
-\addbibresource{manual.bib}% <== the file with the bibliographical database to be used throughout the text
+%\addbibresource{manual.bib}% <== the file with the bibliographical database to be used throughout the text
 
 
 
@@ -25,15 +25,15 @@
 	
 	Taneční soutěž se skládá z velkého počtu jednotlivých tanečních soutěží, které probíhají postupně během celého dne, případně paralelně na více soutěžních plochách. Během jednoho soutěžního dne může proběhnout více než třicet samostatných soutěží, přičemž některé z nich jsou rozděleny do několika kol, jako jsou kvalifikační kola, semifinále a finále. Počet kol závisí zejména na počtu přihlášených účastníků.
 	
-	Všechny tyto soutěže a jejich jednotlivá kola je nutné správně zařadit do časového harmonogramu tak, aby byl přehledný a srozumitelný nejen pro organizátory, ale také pro soutěžící, jejich doprovod a členy poroty. Harmonogram musí umožnit účastníkům orientaci v průběhu dne a zároveň zajistit plynulý průběh celé soutěže. Chyby v organizaci nebo v časovém rozvržení mohou vést k výrazným problémům, jako jsou časové skluz y, nespokojenost účastníků nebo snížení celkové kvality soutěže.
+	Všechny tyto soutěže a jejich jednotlivá kola je nutné správně zařadit do časového harmonogramu tak, aby byl přehledný a srozumitelný nejen pro vedoucí soutěže, ale také pro soutěžící, jejich doprovod a členy poroty. Harmonogram musí umožnit účastníkům orientaci v průběhu dne a zároveň zajistit plynulý průběh celé soutěže. Chyby v organizaci nebo v časovém rozvržení mohou vést k výrazným problémům, jako jsou časové skluzy, nespokojenost účastníků nebo snížení celkové kvality soutěže.
 	
 	
 	\section{Struktura soutěže a základní entity}
-	Z pohledu tvorby a kontroly časového harmonogramu lze taneční soutěž popsat pomocí několika základních entit. Pro účely této práce jsou klíčové zejména tři hlavní entity: taneční soutěže, účastníci a členové poroty.
+	Z pohledu tvorby časového harmonogramu lze taneční soutěž popsat pomocí několika základních entit. Pro účely této práce jsou klíčové zejména tři hlavní entity: taneční soutěže, účastníci a členové poroty.
 	
 	První entitou jsou samotné taneční soutěže. Každá soutěž je definována několika základními atributy, mezi které patří věková kategorie účastníků, typ tance, úroveň výkonnosti a soutěžní liga. Věkové kategorie rozlišují soutěžící podle věku, zatímco typ tance určuje styl, ve kterém soutěž probíhá. Úroveň výkonnosti a liga rozdělují soutěžící podle jejich zkušeností a dovedností. Jednotlivé soutěže mohou mít různý počet kol, který je obvykle stanoven na základě počtu přihlášených účastníků.
 	
-	Druhou důležitou entitou jsou účastníci soutěže. Účastníkem může být jednotlivec nebo taneční pár. Typickým rysem tanečních soutěží je skutečnost, že jeden účastník se může účastnit více soutěží během jednoho dne. Například může soutěžit ve více věkových kategoriích, v různých typech tanců nebo v různých výkonnostních úrovních. V praxi se často stává, že jeden soutěžící, zejména v dětských a juniorských kategoriích, vystupuje v deseti nebo i více soutěžích. Mezi jednotlivými vystoupeními může být navíc nutná výměna tanečního kostýmu.
+	Druhou důležitou entitou jsou účastníci soutěže. Účastníkem bývá typicky jednotlivec nebo taneční pár. U některých druhů soutěží typickým rysem je skutečnost, že jeden účastník se může účastnit více soutěží během jednoho dne. Například může soutěžit ve více věkových kategoriích, v různých typech tanců nebo v různých výkonnostních úrovních. V praxi se často stává, že jeden soutěžící, zejména v dětských a juniorských kategoriích, vystupuje v deseti nebo i více soutěžích. Mezi jednotlivými vystoupeními může být navíc nutná výměna tanečního kostýmu.
 	
 	Z tohoto důvodu je nezbytné při tvorbě harmonogramu zajistit účastníkům dostatečný čas na odpočinek a přípravu mezi jednotlivými vystoupeními. Zároveň je však nežádoucí, aby soutěžící museli na svá další vystoupení čekat nepřiměřeně dlouhou dobu, což by mohlo vést ke zbytečné únavě a stresu.
 	
@@ -42,55 +42,54 @@
 	\section{Zdrojová data a jejich charakter}
 	Veškeré procesy související s registrací soutěží, účastníků a členů poroty jsou realizovány prostřednictvím existujícího webového informačního systému, který slouží k administraci tanečních soutěží. Tento systém zpracovává přihlášky účastníků, eviduje jednotlivé soutěže a ukládá veškerá data do své interní databáze.
 	
-	Součástí tohoto systému je možnost exportu dat do tabulkového formátu, konkrétně ve formátu souborů typu XLS. Tyto exportované tabulky představují hlavní vstupní data pro další práci s harmonogramem soutěže. Struktura těchto tabulek je pevně daná a nemění se mezi jednotlivými soutěžemi. Organizátoři nemají možnost tuto strukturu upravovat ani rozšiřovat.
+	Součástí tohoto systému je možnost exportu dat do tabulkového formátu, konkrétně ve formátu souborů typu XLSX. Tyto exportované tabulky představují hlavní vstupní data pro další práci s harmonogramem soutěže. Struktura těchto tabulek je pevně daná a nemění se mezi jednotlivými soutěžemi. Vedoucí soutěže nemají možnost tuto strukturu upravovat ani rozšiřovat.
 	
-	Přestože exportovaná data obsahují všechny základní informace o soutěžích, účastnících a porotcích, neposkytují přímou podporu pro tvorbu a kontrolu časového harmonogramu. Práce s těmito tabulkami je proto časově náročná a vyžaduje manuální analýzu velkého množství informací.
+	Přestože exportovaná data obsahují všechny základní informace o soutěžích, účastnících a porotcích, neposkytují přímou podporu pro tvorbu a kontrolu časového harmonogramu. Práce s těmito tabulkami je proto časově náročná a vyžaduje manuální analýzu velkého množství informací se snadným zanesením chyb.
 	
 	\section{Problém tvorby časového harmonogramu}
-	Tvorba časového harmonogramu taneční soutěže obvykle začíná přibližně jeden týden před samotným konáním akce. V této fázi organizátoři rozdělují jednotlivé soutěže do časových bloků a přiřazují členy poroty ke konkrétním soutěžím. Jedná se o velmi náročný proces, který vyžaduje vysokou míru soustředění a pečlivosti.
+	Tvorba časového harmonogramu taneční soutěže obvykle začíná přibližně až dva týdny před samotným konáním akce. V této fázi vedoucí soutěže rozdělují jednotlivé soutěže do časových bloků a přiřazují členy poroty ke konkrétním soutěžím. Jedná se o velmi náročný proces, který vyžaduje vysokou míru soustředění a pečlivosti.
 	
-	Při sestavování harmonogramu je nutné zohlednit velké množství faktorů, které nejsou na první pohled zřejmé. Tyto faktory je třeba sledovat napříč několika tabulkami, jejichž struktura není vždy intuitivní a přehledná. Organizátor musí neustále kontrolovat možné kolize, časové rozestupy a vazby mezi jednotlivými soutěžemi, účastníky a porotci.
+	Při sestavování harmonogramu je nutné zohlednit velké množství faktorů, které nejsou na první pohled zřejmé. Tyto faktory je třeba sledovat napříč několika tabulkami, jejichž struktura není vždy intuitivní a přehledná. Vedoucí musí neustále kontrolovat možné kolize, časové rozestupy a vazby mezi jednotlivými soutěžemi, účastníky a porotci.
 	
 	Dalším komplikujícím faktorem je skutečnost, že v období těsně před konáním soutěže může dojít ke změnám v počtu účastníků. Pokud se například ukáže, že se určité soutěže zúčastní příliš malý počet soutěžících, může být tato soutěž zrušena. Taková změna často znamená nutnost přepracovat celý harmonogram, přičemž je znovu nutné zohlednit všechna existující omezení a vazby.
 	
 	\section{Typy časových a organizačních omezení}
-	Při tvorbě časového harmonogramu musí organizátor dodržovat velké množství časových a organizačních omezení. Některá z těchto omezení jsou zřejmá, například skutečnost, že dvě soutěže nemohou probíhat současně v případě, že je k dispozici pouze jedna soutěžní plocha. Existují však i omezení, která lze identifikovat pouze podrobnou analýzou dat a vzájemných vazeb mezi jednotlivými entitami.
-	
+	Při tvorbě časového harmonogramu musí zodpovědný dodržovat velké množství časových a organizačních omezení. Některá z těchto omezení jsou zřejmá, například skutečnost, že dvě soutěže nemohou probíhat současně v případě, že je k dispozici pouze jedna soutěžní plocha. Existují však i omezení, která lze identifikovat pouze podrobnou analýzou dat a vzájemných vazeb mezi jednotlivými entitami, jako například skutečnost, že ve více paralelně probíhajících soutěžích nemohou vystupovat stejní soutěžící.
+
 	Mezi klíčová omezení patří zejména potřeba zajistit, aby soutěžící nevystupovali po dlouhou dobu bez přestávky na odpočinek. Dále je nutné zajistit dostatečný časový prostor pro převlékání kostýmů při změně typu tance. Harmonogram by měl být sestaven tak, aby soutěžící i členové poroty nemuseli na své další zapojení do soutěže čekat nepřiměřeně dlouhou dobu.
-	
-	Dalším důležitým omezením je zabránění časovým kolizím, kdy by účastník nebo porotce byl přiřazen ke dvěma soutěžím probíhajícím ve stejném čase. Sledování a dodržování všech těchto omezení je při častých změnách harmonogramu velmi časově náročné, a to i pro zkušené organizátory.
-	
+
+	Dalším důležitým omezením je zabránění časovým kolizím, kdy by účastník nebo porotce byl přiřazen ke dvěma soutěžím probíhajícím ve stejném čase. Sledování a dodržování všech těchto omezení je při častých změnách harmonogramu velmi časově náročné, a to i pro zkušené vedoucí soutěže.
+
 	\section{Důsledky porušení harmonogramu}
-	Nedodržení časového harmonogramu nebo porušení výše uvedených omezení může mít řadu negativních důsledků. Mezi nejčastější problémy patří časové zpoždění soutěže, které se může postupně kumulovat během celého dne. To může vést ke stresu soutěžících, porotců i organizátorů.
-	
-	Dalším důsledkem může být fyzická únava účastníků, zejména v případech, kdy nejsou dodrženy dostatečné přestávky mezi vystoupeními. Únava může negativně ovlivnit sportovní výkon soutěžících i kvalitu hodnocení ze strany poroty. V extrémních případech může špatně sestavený harmonogram vést ke snížení celkové úrovně soutěže a k negativní zpětné vazbě ze strany účastníků.
-	
+	Nedodržení časového harmonogramu nebo porušení výše uvedených omezení může mít řadu negativních důsledků. Mezi nejčastější problémy patří časové zpoždění soutěže, které se může postupně kumulovat během celého dne. To může vést ke stresu soutěžících, porotců i vedoucích soutěže.
+
+	Dalším důsledkem může být fyzická únava účastníků, zejména v případech, kdy nejsou dodrženy dostatečné přestávky mezi vystoupeními. Únava může negativně ovlivnit sportovní výkon soutěžících i kvalitu hodnocení ze strany poroty. V extrémních případech může špatně sestavený harmonogram vést ke snížení celkové úrovně soutěže, vzniku zmatku, nepříjemné atmosféry a k negativní zpětné vazbě ze strany účastníků.
+
+
 	\section{Shrnutí analytické části}
-	Z provedené analýzy vyplývá, že tvorba časového harmonogramu taneční soutěže představuje komplexní a časově náročný proces, který zahrnuje práci s velkým množstvím dat a dodržování celé řady omezení. Manuální kontrola všech vazeb a pravidel je pro organizátory značně zatěžující a náchylná k chybám.
-	
-	Z těchto důvodů se jeví jako vhodné využití softwarového nástroje, který by organizátorům pomohl s kontrolou již vytvořeného harmonogramu. Takový nástroj může sloužit jako podpůrný prostředek, který umožní rychlou identifikaci problematických míst v harmonogramu a přispěje ke zvýšení efektivity a kvality organizace taneční soutěže.
-	
+	Z provedené analýzy vyplývá, že tvorba časového harmonogramu taneční soutěže představuje komplexní a časově náročný proces, který zahrnuje práci s velkým množstvím dat a dodržování celé řady omezení. Manuální kontrola všech vazeb a pravidel je pro vedoucí soutěže značně zatěžující a náchylná k chybám.
+
+	Z těchto důvodů se jeví jako vhodné využití softwarového nástroje, který by vedoucím pomohl s kontrolou již vytvořeného harmonogramu. Takový nástroj může sloužit jako podpůrný prostředek, který umožní rychlou identifikaci problematických míst v harmonogramu a přispěje ke zvýšení efektivity a kvality organizace taneční soutěže.
+
 	\chapter{Analýza požadavků a návrh systému}
-	
+
 	\section{Cíl práce}
-	
-	Hlavním cílem této práce je návrh a implementace softwarového nástroje, který usnadní organizátorům tanečních soutěží proces kontroly časového harmonogramu. Výsledná aplikace má sloužit jako podpůrný nástroj pro ověřování správnosti již vytvořeného harmonogramu a pro identifikaci jeho slabých míst.
-	
+
+	Hlavním cílem této práce je návrh a implementace softwarového nástroje, který usnadní vedoucím soutěže tanečních soutěží proces kontroly časového harmonogramu. Výsledná aplikace má sloužit jako podpůrný nástroj pro ověřování správnosti již vytvořeného harmonogramu a pro identifikaci jeho slabých míst.
+
 	Program je zaměřen na automatickou kontrolu harmonogramu z hlediska definovaných pravidel a omezení. Na základě vstupních dat aplikace analyzuje harmonogram, vyhledává porušení jednotlivých pravidel a poskytuje přehledný výstup, který upozorňuje na problematická místa. Součástí cíle práce je také výpočet hodnotících metrik, které umožňují celkové zhodnocení kvality harmonogramu.
-	
+
 	Důležitým dílčím cílem je vytvoření přehledného a uživatelsky přívětivého uživatelského rozhraní. Aplikace má být snadno ovladatelná i pro uživatele s nižšími technickými znalostmi a má poskytovat srozumitelný výstup bez nutnosti další interpretace výsledků.
-	
+
 	Na základě hlavního cíle lze definovat následující dílčí cíle práce:
-	
-	analyzovat vstupní data a jejich strukturu,
-	
-	navrhnout systém pro kontrolu porušení harmonogramu,
-	
-	implementovat mechanismus hodnocení nalezených problémů,
-	
-	zajistit přehlednou prezentaci výsledků uživateli.
-	
-	\section{Vymezení rozsahu řešení}
+	\begin{itemize}
+		\item analyzovat vstupní data a jejich strukturu,
+		\item navrhnout systém pro kontrolu porušení harmonogramu,
+		\item implementovat mechanismus hodnocení nalezených problémů,
+		\item zajistit přehlednou prezentaci výsledků uživateli.
+	\end{itemize}
+
+		\section{Vymezení rozsahu řešení}
 	
 	Navržený systém se zaměřuje výhradně na kontrolu a analýzu již existujícího harmonogramu. Aplikace není určena k vytváření, úpravě ani optimalizaci časového rozvrhu soutěže. Jejím úkolem je pouze nahradit manuální kontrolu harmonogramu automatizovaným procesem.
 	
@@ -102,27 +101,20 @@
 	
 	\section{Funkční požadavky systému}
 	
-	Navrhovaný systém musí splňovat následující funkční požadavky, které definují jeho základní chování a schopnosti.
-	
-	Systém musí být schopen:
-	
-	načíst vstupní tabulky obsahující informace o soutěžích,
-	
-	načíst tabulky s údaji o účastnících a jejich registracích,
-	
-	načíst tabulku s rozdělením poroty k jednotlivým soutěžím,
-	
-	načíst tabulku s časovým harmonogramem soutěže,
-	
-	propojit data z jednotlivých tabulek na základě společných identifikátorů nebo názvů,
-	
-	provést kontrolu harmonogramu podle předem definovaných pravidel,
-	
-	identifikovat porušení těchto pravidel,
-	
-	zobrazit výsledky kontroly v přehledné a srozumitelné formě.
+	Navrhovaný systém musí splňovat následující funkční požadavky, které definují jeho základní chování a schopnosti. Systém musí být schopen:
+	\begin{itemize}
+		\item načíst vstupní tabulky obsahující informace o soutěžích,
+		\item načíst tabulky s údaji o účastnících a jejich registracích,
+		\item načíst tabulku s rozdělením poroty k jednotlivým soutěžím,
+		\item načíst tabulku s časovým harmonogramem soutěže,
+		\item propojit data z jednotlivých tabulek na základě společných identifikátorů nebo názvů,
+		\item provést kontrolu harmonogramu podle předem definovaných pravidel,
+		\item identifikovat porušení těchto pravidel,
+		\item zobrazit výsledky kontroly v přehledné a srozumitelné formě.
+	\end{itemize}
 	
 	Výstup systému musí uživateli jednoznačně sdělit, jaké pravidlo bylo porušeno, kde k porušení došlo a jaká je závažnost daného problému. Cílem je, aby uživatel byl schopen rychle pochopit výsledky analýzy bez nutnosti dalšího studia vstupních dat.
+	
 	
 	\section{Nefunkční požadavky}
 	
@@ -137,17 +129,15 @@
 	Aplikace je určena pro běžné kancelářské počítače nebo notebooky. Z tohoto důvodu nesmí být náročná na hardwarové prostředky ani na speciální software třetích stran.
 	
 	\section{Vstupní a výstupní data}
-	Navrhovaný systém pracuje se strukturovanými vstupními daty ve formě tabulek. Tyto tabulky jsou generovány externími systémy nebo vytvářeny ručně organizátory soutěže. Každá tabulka má v systému jasně definovanou roli a obsahuje specifický typ informací potřebných pro kontrolu harmonogramu.
+	Navrhovaný systém pracuje se strukturovanými vstupními daty ve formě tabulek. Tyto tabulky jsou generovány externími systémy nebo vytvářeny ručně vedoucími soutěže. Každá tabulka má v systému jasně definovanou roli a obsahuje specifický typ informací potřebných pro kontrolu harmonogramu.
 	
-	Na vstupu aplikace přijímá celkem čtyři tabulky.
-	
-	První tabulka obsahuje informace o soutěžích. Z této tabulky je možné získat základní údaje o jednotlivých soutěžích, například jejich název, typ soutěže (například standardní nebo latinské tance), soutěžní ligu nebo jednoznačný identifikátor soutěže. Tato tabulka slouží jako základní referenční zdroj pro ostatní vstupní data.
-	
-	Druhá tabulka obsahuje informace o účastnících soutěže. V této tabulce je uvedeno, na které soutěže jsou jednotliví účastníci registrováni. Na základě těchto údajů je možné sledovat účast konkrétních osob v průběhu celého harmonogramu a ověřovat dodržení časových omezení mezi jejich vystoupeními.
-	
-	Třetí tabulka popisuje rozdělení poroty k jednotlivým soutěžím. Obsahuje informace o tom, kteří porotci jsou přiřazeni ke konkrétním soutěžím nebo jejich částem. Tato data jsou důležitá zejména pro kontrolu vytížení poroty a případných časových konfliktů.
-	
-	Čtvrtou a nejdůležitější vstupní tabulkou je tabulka s časovým harmonogramem soutěže. Tato tabulka obsahuje informace o časech začátků jednotlivých kol soutěží. Jednotlivé položky harmonogramu musí být jednoznačně propojeny se soutěžemi uvedenými v tabulce soutěží, a to buď pomocí identifikátoru, nebo shodného názvu. Bez tohoto propojení není možné provést správnou analýzu harmonogramu.
+	Na vstupu aplikace přijímá celkem čtyři tabulky:
+	\begin{itemize}
+		\item první tabulka obsahuje informace o soutěžích. Z této tabulky je možné získat základní údaje o jednotlivých soutěžích, například jejich název, typ soutěže, soutěžní ligu nebo jednoznačný identifikátor soutěže. Tato tabulka slouží jako základní referenční zdroj pro ostatní vstupní data,
+		\item druhá tabulka obsahuje informace o účastnících soutěže. V této tabulce je uvedeno, na které soutěže jsou jednotliví účastníci registrováni. Na základě těchto údajů je možné sledovat účast konkrétních osob v průběhu celého harmonogramu a ověřovat dodržení časových omezení mezi jejich vystoupeními,
+		\item třetí tabulka popisuje rozdělení poroty k jednotlivým soutěžím. Obsahuje informace o tom, kteří porotci jsou přiřazeni ke konkrétním soutěžím nebo jejich částem. Tato data jsou důležitá zejména pro kontrolu vytížení poroty a případných časových konfliktů,
+		\item čtvrtou a nejdůležitější vstupní tabulkou je tabulka s časovým harmonogramem soutěže. Tato tabulka obsahuje informace o časech začátků jednotlivých kol soutěží. Jednotlivé položky harmonogramu musí být jednoznačně propojeny se soutěžemi uvedenými v tabulce soutěží, a to buď pomocí identifikátoru, nebo shodného názvu. Bez tohoto propojení není možné provést správnou analýzu harmonogramu.
+	\end{itemize}
 	
 	Výstupem systému je přehledný report, který shrnuje výsledky kontroly harmonogramu. Tento report obsahuje seznam nalezených porušení pravidel, přičemž každé porušení je jasně popsáno a lokalizováno v rámci harmonogramu. Výstup jednoznačně určuje, kterého pravidla se porušení týká a kde k němu došlo, aby měl uživatel jasnou představu o povaze problému.
 	
@@ -173,15 +163,15 @@
 	
 	Hodnocení časového harmonogramu je založeno na kontrole předem definovaných pravidel a omezení, která vycházejí z organizačních potřeb taneční soutěže. Cílem hodnocení není navrhovat ideální harmonogram, ale poskytnout objektivní přehled o kvalitě již vytvořeného rozvrhu a upozornit na jeho slabá místa.
 	
-	Každé kontrolní pravidlo je v systému implementováno samostatně a je možné jej při kontrole zapnout nebo vypnout podle aktuálních potřeb organizátora. Uživatel má také možnost upravit vybrané parametry pravidel, například minimální dobu odpočinku mezi vystoupeními nebo maximální přípustnou délku čekání mezi soutěžemi. Díky tomu lze systém přizpůsobit různým typům soutěží a jejich specifickým požadavkům.
+	Každé kontrolní pravidlo je v systému implementováno samostatně a je možné jej při kontrole zapnout nebo vypnout podle aktuálních potřeb vedoucího soutěže. Uživatel má také možnost upravit vybrané parametry pravidel, například minimální dobu odpočinku mezi vystoupeními nebo maximální přípustnou délku čekání mezi soutěžemi. Díky tomu lze systém přizpůsobit různým typům soutěží a jejich specifickým požadavkům.
 	
-	Nalezená porušení pravidel jsou v systému rozdělena do několika kategorií podle jejich závažnosti. Rozlišují se méně závažná porušení, která mají spíše informativní charakter, a závažná nebo kritická porušení, která mohou výrazně negativně ovlivnit průběh soutěže. Toto rozdělení umožňuje organizátorům lépe prioritizovat problémy, které je nutné řešit jako první.
+	Nalezená porušení pravidel jsou v systému rozdělena do několika kategorií podle jejich závažnosti. Rozlišují se méně závažná porušení, která mají spíše informativní charakter, a závažná nebo kritická porušení, která mohou výrazně negativně ovlivnit průběh soutěže. Toto rozdělení umožňuje vedoucím soutěže lépe prioritizovat problémy, které je nutné řešit jako první.
 	
 	Každému porušení je přiřazena bodová hodnota, která odpovídá jeho závažnosti. Celkové hodnocení harmonogramu je poté vypočteno jako součet bodů všech nalezených porušení. Na základě výsledného skóre je harmonogram ohodnocen a uživateli je poskytnuta orientační informace o jeho kvalitě.
 	
-	Výstupem hodnocení je přehledný report, který obsahuje celkový počet nalezených porušení, jejich rozdělení podle jednotlivých kategorií a seznam porušení pro každé kontrolní pravidlo. U každého problému je uvedeno jeho umístění v harmonogramu, aby mohl organizátor snadno identifikovat konkrétní část rozvrhu, která vyžaduje pozornost.
+	Výstupem hodnocení je přehledný report, který obsahuje celkový počet nalezených porušení, jejich rozdělení podle jednotlivých kategorií a seznam porušení pro každé kontrolní pravidlo. U každého problému je uvedeno jeho umístění v harmonogramu, aby mohl vedoucí soutěže snadno identifikovat konkrétní část rozvrhu, která vyžaduje pozornost.
 	
-	Navržený způsob hodnocení slouží především jako podpůrný nástroj pro organizátory soutěže. Poskytuje jim strukturovaný pohled na harmonogram a pomáhá snížit riziko přehlédnutí organizačních problémů, které by mohly negativně ovlivnit průběh soutěže.
+	Navržený způsob hodnocení slouží především jako podpůrný nástroj pro vedoucí soutěže. Poskytuje jim strukturovaný pohled na harmonogram a pomáhá snížit riziko přehlédnutí organizačních problémů, které by mohly negativně ovlivnit průběh soutěže.
 	
 	\section{Shrnutí kapitoly}
 	
@@ -191,21 +181,11 @@
 	
 	V další části kapitoly byla charakterizována vstupní a výstupní data systému a jejich role v procesu kontroly harmonogramu. Následně byl představen návrh architektury systému, který je založen na modulárním členění a oddělení jednotlivých odpovědností.
 	
-	Závěrem byl popsán způsob hodnocení harmonogramu, který umožňuje systematickou klasifikaci nalezených porušení a poskytuje organizátorům přehledné a srozumitelné výsledky kontroly.
+	Závěrem byl popsán způsob hodnocení harmonogramu, který umožňuje systematickou klasifikaci nalezených porušení a poskytuje vedoucím soutěže přehledné a srozumitelné výsledky kontroly.
 	
 	Na základě této analýzy a návrhu systému bude v následující kapitole provedena samotná implementace aplikace a ověření její funkčnosti na reálných datech z tanečních soutěží.
 	
-	% _____________________________________________________________________________
-	%
-	%
-	%        BACK MATTER (BIBLIOGRAPHY, LISTS, ...)
-	%
-	% _____________________________________________________________________________
-	%
-	\backmatter
-	\listoffigures
-	\listoftables
-	\listoflistings
+	
 	% _____________________________________________________________________________
 	%
 	%		BACK COVER
