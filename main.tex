@@ -194,6 +194,290 @@
 	
 	Na základě této analýzy a návrhu systému bude v následující kapitole provedena samotná implementace aplikace a ověření její funkčnosti na reálných datech z tanečních soutěží.
 	
+	\chapter{Úvod}
+	V úvodu vymezím praktický problém kontroly harmonogramu tanečních soutěží a stručně popíšu motivaci práce. Dále uvedu cíl, hlavní přínos aplikace a strukturu celé bakalářské práce.
+
+	\chapter{Analýza problematiky plánování taneční soutěže}
+	
+	% TODO: Kapitola zatím pokrývá doménový kontext a praktické problémy.
+	% Chybí však formalizace problému, požadavky na aplikaci a porovnání přístupů.
+	% Tyto části budou doplněny níže jako nové sekce.
+	
+	\section{Doménový kontext tanečních soutěží}
+
+	\subsection{Průběh soutěže a role účastníků procesu}
+	Taneční soutěž je událost, která obvykle probíhá během jednoho dne, avšak její příprava vyžaduje dlouhodobou a pečlivou organizační činnost. Z pohledu návštěvníka nebo diváka se může jednat o plynule probíhající program, avšak v pozadí soutěže stojí značné množství plánování, koordinace a rozhodování. Právě tato organizační část soutěže je časově i mentálně velmi náročná.
+
+	Taneční soutěž se skládá z velkého počtu jednotlivých tanečních soutěží, které probíhají postupně během celého dne, případně paralelně na více soutěžních plochách. Během jednoho soutěžního dne může proběhnout více než třicet samostatných soutěží, přičemž některé z nich jsou rozděleny do několika kol, jako jsou kvalifikační kola, semifinále a finále. Počet kol závisí zejména na počtu přihlášených účastníků.
+
+	Z pohledu tvorby časového harmonogramu lze taneční soutěž popsat pomocí několika základních entit. Pro účely této práce jsou klíčové zejména tři hlavní entity: taneční soutěže, účastníci a členové poroty.
+
+	První entitou jsou samotné taneční soutěže. Každá soutěž je definována několika základními atributy, mezi které patří věková kategorie účastníků, typ tance, úroveň výkonnosti a soutěžní liga. Jednotlivé soutěže mohou mít různý počet kol, který je obvykle stanoven na základě počtu přihlášených účastníků.
+
+	Druhou důležitou entitou jsou účastníci soutěže. Účastníkem bývá typicky jednotlivec nebo taneční pár. V praxi se často stává, že jeden soutěžící, zejména v dětských a juniorských kategoriích, vystupuje v deseti nebo i více soutěžích. Mezi jednotlivými vystoupeními může být navíc nutná výměna tanečního kostýmu.
+
+	Třetí entitou jsou členové poroty. Podobně jako soutěžící, i členové poroty jsou během dne zapojeni do více soutěží, a při sestavování harmonogramu je proto nutné zohlednit jejich potřebu odpočinku i efektivní využití času.
+	
+	% добавить четвертую энтиту в виде выступления. Время, тип, отношение к соревнованию
+
+	\subsection{Význam harmonogramu pro průběh akce}
+	Všechny soutěže a jejich jednotlivá kola je nutné správně zařadit do časového harmonogramu tak, aby byl přehledný a srozumitelný nejen pro vedoucí soutěže, ale také pro soutěžící, jejich doprovod a členy poroty. Harmonogram musí umožnit účastníkům orientaci v průběhu dne a zároveň zajistit plynulý průběh celé soutěže.
+
+	Chyby v organizaci nebo v časovém rozvržení mohou vést k výrazným problémům, jako jsou časové skluzy, nespokojenost účastníků nebo snížení celkové kvality soutěže.
+
+	\section{Problém tvorby a kontroly harmonogramu}
+
+	\subsection{Typické konfliktní situace}
+	Při tvorbě časového harmonogramu musí vedoucí dodržovat velké množství časových a organizačních omezení. Některá z těchto omezení jsou zřejmá, například skutečnost, že dvě soutěže nemohou probíhat současně v případě, že je k dispozici pouze jedna soutěžní plocha. Existují však i omezení, která lze identifikovat pouze podrobnou analýzou dat a vzájemných vazeb mezi jednotlivými entitami, například skutečnost, že ve více paralelně probíhajících soutěžích nemohou vystupovat stejní soutěžící.
+
+	Mezi klíčová omezení patří zejména potřeba zajistit, aby soutěžící nevystupovali po dlouhou dobu bez přestávky na odpočinek. Dále je nutné zajistit dostatečný časový prostor pro převlékání kostýmů při změně typu tance. Harmonogram by měl být sestaven tak, aby soutěžící i členové poroty nemuseli na své další zapojení do soutěže čekat nepřiměřeně dlouhou dobu.
+
+	Dalším důležitým omezením je zabránění časovým kolizím, kdy by účastník nebo porotce byl přiřazen ke dvěma soutěžím probíhajícím ve stejném čase.
+
+	\subsection{Limity ruční kontroly}
+	Tvorba časového harmonogramu taneční soutěže obvykle začíná přibližně dva týdny před samotným konáním akce. V této fázi vedoucí soutěže rozdělují jednotlivé soutěže do časových bloků a přiřazují členy poroty ke konkrétním soutěžím. Jedná se o velmi náročný proces, který vyžaduje vysokou míru soustředění a pečlivosti.
+
+	Při sestavování harmonogramu je nutné zohlednit velké množství faktorů, které nejsou na první pohled zřejmé. Tyto faktory je třeba sledovat napříč několika tabulkami, jejichž struktura není vždy intuitivní a přehledná. Vedoucí musí neustále kontrolovat možné kolize, časové rozestupy a vazby mezi jednotlivými soutěžemi, účastníky a porotci.
+
+	Dalším komplikujícím faktorem je skutečnost, že v období těsně před konáním soutěže může dojít ke změnám v počtu účastníků. Pokud se například ukáže, že se určité soutěže zúčastní příliš malý počet soutěžících, může být tato soutěž zrušena. Taková změna často znamená nutnost přepracovat celý harmonogram, přičemž je znovu nutné zohlednit všechna existující omezení a vazby.
+
+	\subsection{Důsledky porušení harmonogramu}
+	Nedodržení časového harmonogramu nebo porušení výše uvedených omezení může mít řadu negativních důsledků. Mezi nejčastější problémy patří časové zpoždění soutěže, které se může postupně kumulovat během celého dne. To může vést ke stresu soutěžících, porotců i vedoucích soutěže.
+
+	Dalším důsledkem může být fyzická únava účastníků, zejména v případech, kdy nejsou dodrženy dostatečné přestávky mezi vystoupeními. Únava může negativně ovlivnit sportovní výkon soutěžících i kvalitu hodnocení ze strany poroty. V extrémních případech může špatně sestavený harmonogram vést ke snížení celkové úrovně soutěže, vzniku zmatku, nepříjemné atmosféry a k negativní zpětné vazbě ze strany účastníků.
+
+	\section{Formalizace plánovacího problému}
+
+	\subsection{Časový model soutěže}
+	% TODO: Popsat reprezentaci času, intervalů a návazností mezi vystoupeními.
+	% Definovat pojem časového intervalu a detekci překryvu.
+
+	\subsection{Definice omezení a porušení}
+	% TODO: Formálně definovat pravidla (kolize soutěžících, poroty,
+	% minimální přestávky, převlékání apod.) a pojem porušení pravidla.
+	% TODO: Doplnit klasifikaci omezení (hard vs. soft constraints).
+
+	\section{Vstupní data a jejich omezení}
+
+	\subsection{Struktura vstupních tabulek}
+	Veškeré procesy související s registrací soutěží, účastníků a členů poroty jsou realizovány prostřednictvím existujícího webového informačního systému, který slouží k administraci tanečních soutěží. Tento systém zpracovává přihlášky účastníků, eviduje jednotlivé soutěže a ukládá veškerá data do své interní databáze.
+
+	Součástí tohoto systému je možnost exportu dat do tabulkového formátu, konkrétně ve formátu souborů typu XLSX. Tyto exportované tabulky představují hlavní vstupní data pro další práci s harmonogramem soutěže.
+
+	% TODO: Doplnit detailní popis konkrétních tabulek a klíčových sloupců
+	% (soutěže, soutěžící, porota, rozvrh) včetně vazeb přes identifikátory.
+
+	\subsection{Rizika nekonzistence a nekvality dat}
+	Přestože exportovaná data obsahují základní informace o soutěžích, účastnících a porotcích, neposkytují přímou podporu pro tvorbu a kontrolu časového harmonogramu. Práce s těmito tabulkami je proto časově náročná a vyžaduje manuální analýzu velkého množství informací se snadným zanesením chyb.
+
+	% TODO: Doplnit typické datové chyby (chybějící hodnoty,
+	% neplatné reference, duplicity) a jejich dopad na analýzu. указать то, что таблица расписания делается как попало и не имеет строгого формата.
+
+	\section{Požadavky na aplikaci}
+
+	\subsection{Funkční požadavky}
+	% TODO: Načtení dat, mapování sloupců, validace vstupů,
+	% pravidlová analýza harmonogramu, generování HTML reportu,
+	% zobrazení porušení nad tabulkou rozvrhu.
+	
+	\subsection{Nefunkční požadavky}
+	% TODO: Použitelnost pro organizátory, stabilita, rozšiřitelnost pravidel,
+	% srozumitelnost výstupu, přiměřené nároky na běžný HW.
+
+	\subsection{Rozsah a hranice řešení}
+	% TODO: Zdůraznit, že aplikace harmonogram neoptimalizuje,
+	% ale validuje existující plán; neprovádí editaci dat v externím systému.
+
+	\section{Přístupy k řešení a existující praxe}
+
+	\subsection{Hodnoticí kritéria porovnání}
+	% TODO: Definovat kritéria (přesnost, transparentnost,
+	% časová náročnost, rozšiřitelnost).
+
+	\subsection{Manuální a tabulkové postupy}
+	V současné praxi převažuje ruční kontrola tabulek, případně jednoduché tabulkové postupy. Tyto přístupy jsou použitelné u jednodušších scénářů, ale při vyšší složitosti harmonogramu rychle narůstá časová náročnost i riziko přehlédnutí konfliktů.
+
+	\subsection{Pravidlově orientovaný přístup}
+	Na základě předchozí analýzy se jeví jako vhodné využití softwarového nástroje, který pomáhá automaticky vyhodnocovat vazby mezi entitami a kontrolovat dodržení definovaných pravidel. Pravidlový přístup umožňuje systematickou, opakovatelnou a transparentní kontrolu harmonogramu.
+
+	\subsection{Zdůvodnění volby výsledného přístupu}
+	% TODO: Obhájit volbu specializovaného desktopového nástroje
+	% s pravidlovou analýzou pro kontrolu již vytvořeného harmonogramu.
+	
+	\section{Shrnutí}
+	Z provedené analýzy vyplývá, že tvorba časového harmonogramu taneční soutěže představuje komplexní a časově náročný proces, který zahrnuje práci s velkým množstvím dat a dodržování celé řady omezení. Manuální kontrola všech vazeb a pravidel je pro vedoucí soutěže značně zatěžující a náchylná k chybám.
+
+	Z těchto důvodů se jeví jako vhodné využití softwarového nástroje, který vedoucím pomůže s kontrolou již vytvořeného harmonogramu. Takový nástroj může sloužit jako podpůrný prostředek, který umožní rychlou identifikaci problematických míst v harmonogramu a přispěje ke zvýšení efektivity a kvality organizace taneční soutěže.
+
+	\chapter{Návrh řešení}
+
+	\section{Koncepce navrženého řešení}
+	V této sekci představím celkovou koncepci aplikace a hlavní principy jejího fungování. Popíšu logiku zpracování od vstupu dat po výsledný výstup.
+
+	\subsection{Přehled pipeline zpracování}
+	Vysvětlím základní kroky pipeline: ingest, validace, sestavení repozitáře, pravidlová analýza a reportování. Ukážu, jak na sebe kroky navazují.
+
+	\subsection{Důvody zvoleného členění řešení}
+	Odůvodním oddělení přípravy dat, analytické logiky a prezentační části. Zaměřím se na robustnost, přehlednost a rozšiřitelnost systému.
+
+	\section{Architektura systému}
+	V této sekci navrhnu logickou architekturu aplikace a odpovědnosti jednotlivých vrstev. Cílem je ukázat, jak architektura podporuje údržbu a budoucí rozvoj.
+
+	\subsection{Vrstvy a hlavní komponenty}
+	Popíšu hlavní vrstvy systému a jejich úlohy. Vymezím rozhraní mezi komponentami a důvody jejich oddělení.
+
+	\subsection{Tok dat mezi komponentami}
+	Vysvětlím, jak data proudí mezi vrstvami během běhu aplikace. Uvedu, kde vznikají validační výstupy a 	kde analytické výsledky.
+
+	\section{Návrh doménového modelu a repozitáře}
+	V této sekci popíšu návrh interní datové reprezentace a centrálního repozitáře. Tím připravím datový základ pro pravidlovou analýzu.
+
+	\subsection{Doménové entity a jejich invarianty}
+	Definuji klíčové entity a pravidla jejich konzistence. Vysvětlím, jak invarianty omezují vznik nekorektních stavů.
+
+	\subsection{Centrální repozitář dat}
+	Popíšu princip sjednocení dat ze vstupních tabulek do jedné interní struktury. Odůvodním, proč je repozitář klíčový pro konzistentní vyhodnocení pravidel.
+
+	\section{Koncepce pravidlové analýzy}
+	V této sekci popíšu návrh pravidlového analytického jádra nad doménovým modelem. Zaměřím se na reprezentaci pravidel, parametrizaci a klasifikaci porušení.
+
+	\subsection{Typy kontrolních pravidel}
+	Představím skupiny pravidel pokrývající hlavní konflikty v harmonogramu. Ukážu, jak pravidla odpovídají formalizovaným omezením z analytické části.
+
+	\subsection{Parametrizace pravidel a závažnost porušení}
+	Vysvětlím návrh prahů a klasifikace porušení podle závažnosti. Uvedu, jak parametrizace umožňuje přizpůsobení různým soutěžním podmínkám.
+
+	\subsection{Politika připravenosti analýzy}
+	Popíšu mechanismus, který rozhoduje o povolení nebo blokaci analýzy podle kvality dat. Zdůvodním, proč je tento krok důležitý pro důvěryhodnost výstupu.
+
+	\section{Návrh uživatelského workflow a výstupů}
+	V této sekci navrhnu způsob práce uživatele s aplikací a formy prezentace výsledků. Cílem je podpořit rychlou orientaci v problémech a efektivní opakovanou práci.
+
+	\subsection{Uživatelské workflow}
+	Popíšu kroky uživatele od načtení tabulek až po spuštění analýzy. Vysvětlím, jak návrh workflow snižuje riziko chyb při obsluze.
+
+	\subsection{Návrh prezentace výsledků}
+	Představím způsob zobrazení výsledků formou reportu a vizuálního zvýraznění porušení v rozvrhu. Uvedu, proč je kombinace těchto výstupů prakticky přínosná.
+
+	\subsection{Podpora opakované práce}
+	Popíšu návrh obnovy relace a znovupoužití mapování sloupců. Vysvětlím, jak tento mechanismus zkracuje čas potřebný pro další běhy analýzy.
+
+	\section{Volba technologických prostředků}
+	V této sekci odůvodním výběr technologií použitých pro implementaci navržené koncepce. Každou volbu propojím s požadavky systému a praktickými omezeními.
+
+	\subsection{Technologie pro zpracování dat a konfiguraci}
+	Zdůvodním volbu nástrojů pro práci s tabulkovými daty a konfiguraci pravidel. Zaměřím se na robustnost a snadnou údržbu.
+
+	\subsection{Technologie pro desktopové rozhraní a reporting}
+	Vysvětlím volbu GUI technologie a způsobu generování reportů. Uvedu přínos této volby pro cílové uživatele aplikace.
+
+	\subsection{Technologie pro distribuci aplikace}
+	Popíšu zvolený způsob balení a nasazení aplikace. Zdůvodním jeho vhodnost pro plánované používání v praxi.
+
+	\chapter{Implementace aplikace}	
+	\section{Struktura projektu}
+	V této kapitole popíšu převod návrhu do konkrétní implementace. Nejprve představím strukturu projektu a odpovědnosti hlavních částí.
+
+	\subsection{Modulární členění implementace}
+	Popíšu hlavní implementační moduly a jejich vazby. Ukážu, jak členění podporuje čitelnost i budoucí rozšiřování.
+
+	\subsection{Inicializace aplikace}
+	Vysvětlím, jak probíhá start aplikace a sestavení klíčových komponent. Uvedu, jak je řešeno předání závislostí mezi moduly.
+
+	\section{Implementace ingestní pipeline}
+	V této sekci popíšu implementaci načítání, mapování, parsování a validace vstupních dat. Cílem je ukázat, jak systém připravuje data pro analytické jádro.
+
+	\subsection{Načítání dat a mapování sloupců}
+	Vysvětlím implementaci práce se soubory, listy a mapováním polí. Popíšu i kontrolu použitelnosti mapování před analýzou.
+
+	\subsection{Parsování tabulek}
+	Popíšu převod tabulkových dat do doménových objektů. Zaměřím se na práci s chybami a uživatelsky srozumitelné hlášení problémů.
+
+	\subsection{Víceúrovňová validace dat}
+	Vysvětlím validaci na úrovni schématu, řádků a konzistence repozitáře. Uvedu, jak validační výsledek ovlivňuje další průběh workflow.
+
+	\section{Implementace repozitáře a doménového modelu}
+	V této sekci popíšu technickou realizaci interních entit a centrálního repozitáře. Zaměřím se na konzistenci dat a práci se vztahy mezi entitami.
+
+	\subsection{Implementace doménových entit}
+	Ukážu, jak jsou v kódu realizovány entity a jejich invarianty. Vysvětlím, jak tyto invarianty chrání systém před nekorektními stavy.
+
+	\subsection{Implementace centrálního repozitáře}
+	Popíšu, jak repozitář ukládá a zpřístupňuje data analytickým pravidlům. Uvedu klíčové operace používané během analýzy.
+
+	\section{Implementace pravidlového analytického modulu}
+	V této sekci popíšu realizaci pravidel, inferenčního běhu a agregace porušení. Cílem je ukázat, jak je v praxi naplněna koncepce pravidlové analýzy.
+
+	\subsection{Implementace kontrolních pravidel}
+	Popíšu implementaci jednotlivých skupin pravidel a jejich vyhodnocování nad repozitářem. Uvedu, jak pravidla vytvářejí porušení s kontextovými detaily.
+
+	\subsection{Běh analýzy a zpracování výsledků}
+	Vysvětlím, jak probíhá spuštění pravidel, deduplikace a seskupení výsledků. Uvedu, jak jsou výsledky připraveny pro prezentační vrstvu.
+
+	\section{Implementace aplikačního workflow}
+	V této sekci popíšu orchestraci use-case kroků od přípravy dat po finální výstup. Zaměřím se na řízení stavů a chování aplikace při chybách.
+
+	\subsection{Orchestrace use-case kroků}
+	Popíšu implementaci návaznosti přípravy dat, sestavení repozitáře a analýzy. Vysvětlím, jak jsou mezi kroky předávány výsledky.
+
+	\subsection{Ukládání a obnova relace}
+	Vysvětlím technickou realizaci persistence relace mezi běhy aplikace. Uvedu, jak obnova relace podporuje efektivní opakovanou práci.
+
+	\section{Implementace uživatelského rozhraní a reportingu}
+	V této sekci popíšu realizaci hlavního rozhraní, dialogů a reportů. Cílem je ukázat, jak jsou analytické výsledky předávány uživateli v přehledné podobě.
+
+	\subsection{Hlavní ovládací rozhraní}
+	Popíšu implementaci práce s tabulkami, mapováním a spuštěním analýzy. Uvedu logiku stavů, která uživatele vede správným postupem.
+
+	\subsection{Zobrazení kvality dat a porušení}
+	Vysvětlím implementaci zobrazení kvality dat a propojení porušení s konkrétními řádky rozvrhu. Ukážu, jak to usnadňuje identifikaci a opravu problémů.
+
+	\subsection{Generování reportů}
+	Popíšu implementaci reportingu včetně HTML výstupu. Uvedu, jak report podporuje sdílení a následnou interpretaci výsledků.
+
+	\section{Omezení implementace}
+	V této sekci transparentně uvedu technická a provozní omezení aktuální verze řešení. Konkrétně popíšu závislost na formátu XLS/XLSX, cílení na Windows distribuci, absenci optimalizace harmonogramu, omezené pokrytí pravidel a chybějící real-time integraci s externím portálem.
+
+	\chapter{Testování a ověření funkčnosti}
+
+	\section{Testovací strategie a reprodukovatelnost}
+	V této kapitole popíšu, jak jsem ověřoval správnost a spolehlivost aplikace. Současně uvedu podmínky, aby bylo možné testování nezávisle reprodukovat.
+
+	\subsection{Cíle a rozsah testování}
+	Vymezím testované části systému a kritéria úspěchu. Uvedu také oblasti, které nejsou ověřeny v plném rozsahu.
+
+	\subsection{Testovací data a podmínky běhu}
+	Popíšu použité datové sady, konfiguraci a testovací prostředí. Vysvětlím, proč jsou zvolené scénáře reprezentativní.
+
+	\section{Testovací scénáře}
+	V této sekci představím konkrétní scénáře a jejich očekávané výsledky. Cílem je doložit správné chování systému při standardních i problémových vstupech.
+
+	\subsection{Scénáře úspěšné analýzy}
+	Popíšu scénáře s validními daty, kde analýza proběhne úspěšně. Ověřím, že výsledky odpovídají očekávání.
+
+	\subsection{Scénáře blokace a chybových stavů}
+	Popíšu scénáře s nekvalitními daty, kdy je analýza blokována nebo selže. Ověřím správnost důvodů blokace i jejich prezentace uživateli.
+
+	\subsection{Scénáře prezentace výsledků}
+	Ověřím správnost zobrazení porušení v aplikaci i v reportech. Uvedu, zda jsou výsledky konzistentní napříč všemi výstupy.
+
+	\section{Vyhodnocení výsledků testování}
+	V této sekci shrnu dosažené výsledky a jejich praktický význam. Zhodnotím přínos nástroje vůči ruční kontrole a limity provedeného ověření.
+
+	\chapter{Diskuse}
+
+	\section{Přínosy navrženého řešení}
+	V této sekci shrnu hlavní přínosy aplikace z pohledu přesnosti, přehlednosti a efektivity kontroly harmonogramu. Uvedu, v čem řešení nejvíce pomáhá organizátorovi soutěže.
+
+	\section{Omezení a rizika nasazení}
+	Popíšu limity řešení a rizika jeho použití v odlišných podmínkách. Navážu na omezení implementace a jejich dopad na interpretaci výsledků.
+
+	\section{Možnosti dalšího rozvoje}
+	Navrhnu konkrétní směry budoucího rozšíření systému. Vysvětlím, jak by tato rozšíření zvýšila praktickou hodnotu aplikace.
+
+	\chapter{Závěr}
+	V závěru stručně zrekapituluji splnění cílů práce a hlavní přínosy výsledné aplikace. Uzavřu práci shrnutím klíčových výsledků a návazností pro další vývoj.
+	
 	\backmatter
 	\printbibliography
 	\setbackpageqrcode
