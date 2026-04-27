@@ -201,7 +201,7 @@
 	
 				Důležitým argumentem je také připravenost na budoucí rozvoj. Architektura založená na pravidlech umožňuje doplňování nových kontrol podle potřeb praxe, aniž by bylo nutné měnit základní princip řešení.
 	
-		\section{Požadavky na aplikaci} %TODO: может стоит перенести в следующую главу
+		\section{Požadavky na aplikaci}
 	
 			\subsection{Funkční požadavky}
 			
@@ -257,193 +257,159 @@
 		
 			Tyto závěry tvoří přímý podklad pro následující kapitolu, která se věnuje návrhu konkrétní architektury a komponent navrženého řešení.
 	
-
 	\chapter{Návrh řešení}
-
-		\section{Koncepce navrženého řešení}
-
-			\subsection{Přehled pipeline zpracování} %TODO: мб стоит поменять название
-				Navržená aplikace zpracovává vstupní tabulky taneční soutěže a provádí jejich následnou kontrolu. Celý proces je koncipován jako navazující pipeline kroků, které na sebe logicky navazují. Jednotlivé kroky postupně zvyšují úroveň porozumění datům a současně vytvářejí diagnostické informace o jejich kvalitě.
 	
-				Prvním krokem je načtení vstupních tabulek a převod jejich obsahu do interní reprezentace. V této fázi dochází k prvnímu kontaktu systému s daty a k zachycení základních problémů ve vstupních souborech.
+	\section{Přehled navrženého zpracování}
 	
-				Druhým krokem je sestavení interní reprezentace soutěže. Načtená data jsou propojena do uceleného modelu, který zahrnuje soutěže, účastníky, porotu a časové intervaly harmonogramu. V této fázi se ověřuje, zda data dávají smysl jako celek, a identifikují se problémy vyplývající ze vztahů mezi jednotlivými částmi.
+	\subsection{Cíl navrženého řešení}
+	Cílem navrženého řešení je vytvořit praktický nástroj pro automatizovanou kontrolu harmonogramu taneční soutěže. Návrh vychází z funkčních a nefunkčních požadavků definovaných v analytické části práce a přímo navazuje na formalizaci plánovacího problému.
 	
-				Třetím krokem je vyhodnocení připravenosti dat k analýze. Systém shromáždí zjištěné problémy a určí, zda je možné nad aktuálními daty provádět analytickou kontrolu harmonogramu. Současně jsou tato zjištění zpřístupněna uživateli.
+	Systém je navržen jako řízený proces, který přijímá vstupní tabulky, převádí je do interní reprezentace soutěže a následně provádí pravidlovou kontrolu. Výsledkem běhu je buď přehled porušení harmonogramu, nebo informace o tom, že analýzu nebylo možné spustit z důvodu nedostatečné kvality dat.
 	
-				Čtvrtým krokem je vlastní analýza harmonogramu. Aplikace v této fázi provádí kontrolu pomocí definovaných pravidel a omezení. Cílem je odhalit porušení plánovacích pravidel v časovém rozvrhu soutěže.
+	\subsection{Hlavní kroky zpracování}
+	Navržený proces je rozdělen do navazujících kroků. V prvním kroku systém načte čtyři vstupní tabulky ve formátu Excel a připraví data pro další zpracování pomocí mapování sloupců.
 	
-				Pátým krokem je prezentace výsledků. Systém vytváří přehledné výstupy, které podporují organizátora při kontrole a následných úpravách harmonogramu.
+	Ve druhém kroku probíhá bezpečné čtení, předzpracování a sběr diagnostických zjištění. V této fázi systém neprovádí rozhodnutí o pokračování analýzy, ale pouze shromažďuje problémy nalezené ve vstupních datech.
 	
-				Takto navržená pipeline pokrývá celý proces od vstupních dat po výsledné hodnocení. Jednotlivé kroky na sebe navazují a postupně zvyšují kvalitu informací, které má uživatel k dispozici.
+	Ve třetím kroku jsou data převedena do doménového modelu soutěže a uložena do centrálního repozitáře. Následuje kontrola konzistence repozitáře a doplnění diagnostických informací o problémy vzniklé na úrovni interní reprezentace.
 	
-
-			\subsection{Důvody zvoleného členění řešení}
-				Zvolené členění řešení vychází z potřeby oddělit práci se vstupními daty od samotné analytické kontroly. Příprava dat a vyhodnocení harmonogramu představují odlišné typy úloh, které mají jiný cíl i jiná rizika. Jejich oddělení proto zvyšuje přehlednost návrhu.
+	Ve čtvrtém kroku probíhá vyhodnocení připravenosti dat k analýze. Tento krok rozhoduje, zda lze spustit pravidlovou kontrolu, nebo zda má být běh ukončen s vysvětlením důvodu.
 	
-				Dalším důvodem je princip postupného zpřesňování dat. Systém postupuje od surových tabulkových vstupů k internímu modelu soutěže a následně k analytickému hodnocení. Každý krok vytváří kvalitnější základ pro krok následující.
+	V pátém kroku je provedena pravidlová analýza harmonogramu. Posledním krokem je prezentace výstupů uživateli.
 	
-				Důležitým aspektem je také transparentnost vůči uživateli. Vedouci má v každé fázi přehled o zjištěných problémech a může lépe rozhodovat o dalších úpravách harmonogramu. Analýza tak neprobíhá skrytě, ale je průběžně kontrolovatelná.
+	\subsection{Odůvodnění zvoleného pořadí kroků}
+	Zvolené pořadí kroků je dáno požadavkem na spolehlivost výsledků. Pravidlová analýza je zařazena až po načtení dat, sestavení interní reprezentace a vyhodnocení připravenosti, aby nedocházelo k interpretaci neúplných nebo nekonzistentních vstupů.
 	
-				Zvolené členění současně podporuje rozšiřitelnost řešení. Modulární charakter návrhu umožňuje doplňovat nové typy kontrol i nové datové vstupy bez nutnosti zásadní změny celé koncepce systému.
-
-		\section{Architektura systému}
+	Dalším důvodem je oddělení odpovědností mezi vrstvami. Vstupní vrstva zajišťuje bezpečné zpracování dat a sběr problémů, doménová vrstva vytváří jednotnou reprezentaci soutěže a analytická vrstva řeší vlastní kontrolu omezení.
 	
-			Aplikace je navržena jako vícevrstvá architektura. Cílem tohoto řešení je oddělení odpovědností, lepší přehlednost návrhu a snadnější rozvoj systému v dalších etapách. Jednotlivé vrstvy spolupracují prostřednictvím jasně definovaných rozhraní.
+	Tento postup současně podporuje transparentnost vůči uživateli. Uživatel má k dispozici nejen výsledek analýzy, ale také informace o tom, ve které fázi případně došlo k blokaci běhu a proč.
 	
-			\subsection{Vrstvy a hlavní komponenty}
-				Navržená architektura vychází z pipeline zpracování popsané v předchozí sekci. Jednotlivé vrstvy reprezentují logické části systému a pokrývají celý proces od vstupních dat po prezentaci výsledků.
+	\section{Návrh vstupní vrstvy}
 	
-				První vrstvou je uživatelská vrstva. Uživatel prostřednictvím rozhraní načítá vstupní data, spouští kontrolu harmonogramu a zobrazuje výsledky analýzy. Tato vrstva slouží pouze pro interakci se systémem a neobsahuje analytickou logiku.
+	\subsection{Načtení vstupních tabulek}
+	Vstupní vrstva pracuje se čtyřmi tabulkami ve formátu Excel: tabulka soutěží, tabulka účastníků, tabulka poroty a tabulka harmonogramu. Tyto tabulky představují povinný vstup pro sestavení interní reprezentace soutěže.
 	
-				Druhou vrstvou je aplikační vrstva. Tato vrstva zajišťuje komunikaci mezi uživatelským rozhraním a jádrem systému. Přijímá požadavky uživatele, spouští jednotlivé kroky zpracování a koordinuje běh celé pipeline.
+	Návrh této vrstvy vychází z toho, že část tabulek je exportována ze systému ČSTS a část je připravována ručně organizátorem soutěže. V důsledku toho nelze předpokládat zcela jednotnou strukturu souborů mezi různými akcemi.
 	
-				Třetí vrstvou je vrstva zpracování vstupních dat. Jejím úkolem je načtení vstupních tabulek, základní kontrola jejich struktury a převod dat do interní reprezentace. Součástí této vrstvy je také zachycení problémů ve vstupních datech.
+	Úkolem vstupní vrstvy není hodnotit správnost harmonogramu, ale zajistit bezpečné převzetí dat a jejich přípravu pro další kroky pipeline.
 	
-				Čtvrtou vrstvou je doménová vrstva. Tato vrstva obsahuje interní model taneční soutěže a zajišťuje propojení dat do ucelené struktury. Představuje jádro doménové reprezentace, nad kterou je možné provádět analytické operace.
+	\subsection{Mapování sloupců}
+	Vzhledem k variabilitě vstupních tabulek je součástí návrhu mechanismus mapování sloupců. Uživatel přiřazuje sloupce vstupních tabulek k požadovaným atributům interních entit.
 	
-				Pátou vrstvou je analytická vrstva. Zde probíhá kontrola harmonogramu pomocí definovaných pravidel a omezení. Vrstva identifikuje porušení plánovacích pravidel a vyhodnocuje správnost harmonogramu v návaznosti na formalizaci problému.
+	Mapování umožňuje oddělit logiku systému od konkrétní podoby tabulek. Díky tomu není nutné upravovat zdrojové soubory do pevně daného formátu a systém může být použit i při změně struktury vstupu.
 	
-				Šestou vrstvou je vrstva prezentace výsledků. Jejím cílem je připravit výstupy analýzy do přehledné podoby, která usnadňuje interpretaci nalezených problémů a podporuje rozhodování uživatele.
+	%Návrh současně předpokládá znovupoužití mapování při opakované práci, aby uživatel nemusel při každém běhu proces nastavovat znovu.
 	
-				Navržené vrstvy mají jasně oddělené odpovědnosti. Toto členění zvyšuje přehlednost řešení a současně podporuje jeho rozšiřitelnost.
+	\subsection{Bezpečné čtení a průběžná diagnostika vstupu}
+	V této části je čtení dat navrženo tak, aby bylo odolné vůči běžným problémům ve vstupních tabulkách. Cílem není ukončit běh při první chybě, ale bezpečně projít data, převést použitelné záznamy a současně průběžně sbírat informace o nalezených problémech.
 	
-			\subsection{Tok dat mezi komponentami}
-				Tok dat v systému probíhá postupně v několika navazujících krocích. Každá vrstva využívá výstupy předchozí vrstvy a předává je vrstvě následující.
+	Nejprve se ověřuje, že tabulka obsahuje všechny sloupce definované v mapování. Tato kontrola zachytí situace, kdy je mapování nastaveno chybně nebo kdy se po jeho nastavení změnila struktura souboru.
 	
-				Zpracování je zahájeno uživatelem prostřednictvím uživatelského rozhraní. Požadavek je následně předán aplikační vrstvě, která řídí další průběh zpracování.
+	Poté probíhá parsování jednotlivých řádků. Kontroly se provádějí přímo během zpracování každého řádku. Ověřuje se, zda řádek obsahuje hodnoty potřebné pro mapovaná pole a zda mají tyto hodnoty použitelný formát.
 	
-				Aplikační vrstva postupně spouští jednotlivé kroky pipeline a koordinuje tok dat mezi vrstvami. Nejprve proběhne načtení vstupních dat, poté vytvoření interní reprezentace soutěže a následně analytická kontrola harmonogramu.
+	Pokud je řádek prázdný nebo neobsahuje informace důležité pro systém, je přeskočen bez přerušení celého procesu. Stejně se postupuje i u řádků, kde jsou v mapovaných polích neplatné hodnoty.
 	
-				Během zpracování vznikají diagnostické informace o kvalitě dat a o nalezených problémech. Tyto informace jsou průběžně shromažďovány a předávány do dalších částí systému.
+	Zvláštní pozornost je věnována časovým údajům a délkám trvání. Tyto hodnoty se mohou ve vstupech vyskytovat v různých zápisech, proto návrh počítá s tolerantním parsováním a záložním mechanismem parsování pro formáty \texttt{HH:MM:SS}, \texttt{MM:SS} a \texttt{MM}.
 	
-				Po dokončení analýzy jsou výsledky předány vrstvě prezentace výsledků. Následně jsou zpřístupněny uživateli prostřednictvím uživatelského rozhraní.
+	Všechny zjištěné problémy jsou během čtení ukládány do diagnostiky. Tato diagnostika je následně předána do dalších částí systému, kde vstupuje do rozhodnutí o připravenosti dat k analýze.
 	
-				Takto definovaný tok dat odpovídá navržené pipeline zpracování a podporuje transparentní, řízený a opakovatelný průběh kontroly harmonogramu.
-
-		\section{Návrh doménového modelu a repozitáře}
+	\section{Návrh doménového modelu a centrálního repozitáře}
 	
-				V analytické části byl problém tvorby a kontroly harmonogramu popsán pomocí pravidel a omezení. Tato pravidla však nelze aplikovat přímo nad vstupními tabulkami, protože tabulková data mají provozní charakter a nejsou jednotná. Z tohoto důvodu systém vytváří interní reprezentaci taneční soutěže. Tato reprezentace tvoří doménový model aplikace.
+	\subsection{Doménové entity a vazby}
+	Doménová vrstva převádí načtená data do jednotné interní reprezentace soutěže. Smyslem této reprezentace je propojit informace z více tabulek do jednoho konzistentního celku, nad kterým lze provádět analytické operace.
 	
-				Doménový model představuje způsob, jak systém popisuje realitu soutěže. Umožňuje převést heterogenní vstupní data do konzistentní struktury, nad kterou lze spolehlivě provádět analytickou kontrolu harmonogramu.
-				
-				%TODO: переделать, выглядит противоречиво. Да, правила нельзя применять над таблицами, но у меня есть слой парсинга, который собирает таблицы в данные. Тут скорее речь о том, как собрать эти данные воедино и объединить в одну структуру
+	Model obsahuje programové reprezentace klíčových prvků soutěže: soutěž, vystoupení (kolo), účastník a člen poroty. Tyto entity odpovídají doménovému kontextu popsanému v analytické části, ale v návrhu jsou chápány jako interní datové objekty systému.
 	
-			\subsection{Doménové entity a jejich invarianty}
-				Doménový model je tvořen množinou entit, které odpovídají hlavním prvkům soutěže. Mezi entitami existují vztahy odvozené z reálného průběhu soutěžního dne. Každá entita má definované invarianty, tedy vlastnosti, které musí vždy platit, aby byla zachována konzistence dat pro analytickou část systému.
+	Mezi entitami jsou definovány vazby podle identifikátorů soutěží a podle časových souvislostí harmonogramu. Tím vzniká časově orientovaný model soutěžního dne, který je vhodný pro následnou kontrolu omezení.
 	
-				Základní entitou modelu je soutěž. Soutěž reprezentuje konkrétní taneční akci a tvoří zastřešující prvek celého modelu. Každá soutěž má unikátní identifikátor, který slouží jako vazební bod pro ostatní entity. Invariantem je jedinečnost identifikátoru soutěže a požadavek, že všechny navázané entity musí odkazovat na existující soutěž.
+	\subsection{Centrální repozitář dat}
+	Po vytvoření entit jsou data uložena do centrálního repozitáře. Repozitář představuje jednotný zdroj pravdy pro další zpracování a odděluje práci analytické vrstvy od přímé práce se vstupními soubory.
 	
-				Další entitou je vystoupení, respektive soutěžní kolo. Vystoupení představuje časově ohraničenou část harmonogramu a tvoří základ plánování průběhu dne. Každé vystoupení je přiřazeno ke konkrétní soutěži pomocí jejího identifikátoru. Invariantem je, že vystoupení musí patřit existující soutěži a musí reprezentovat jednoznačně určený časový úsek harmonogramu.
+	Toto řešení zjednodušuje datový tok v systému. Analytická část nepracuje s jednotlivými tabulkami, ale s jednou sjednocenou strukturou.
 	
-				Třetí entitou je člen poroty. Porotci představují personální zdroje soutěže a jejich přiřazení je nutné pro realizaci hodnoticích částí programu. Každý člen poroty je navázán na konkrétní soutěž, což určuje, v jakých částech harmonogramu může působit. Invariantem je vazba porotce na existující soutěž.
+	\subsection{Invariance modelu a validace repozitáře}
+	Nad interní reprezentací jsou definovány základní invariance, které musí být splněny, aby mělo smysl pokračovat do analytické části. Kontrola je zaměřena na konzistenci vazeb mezi entitami a na úplnost dat.
 	
-				Čtvrtou entitou je tanečník jako účastník soutěže. Tanečník je přiřazen ke konkrétní soutěži a jeho účast je plánována v jednotlivých vystoupeních. Invariantem je, že tanečník musí být navázán na existující soutěž a jeho účast musí být interpretovatelná v rámci harmonogramu.
+	V rámci validace repozitáře se ověřují zejména tyto podmínky:
+	\begin{itemize}
+		\item jedinečnost identifikátorů soutěží,
+		\item návaznost každého vystoupení na existující soutěž,
+		\item absence duplicitních vystoupení v harmonogramu,
+		\item existence alespoň jednoho vystoupení pro každou evidovanou soutěž,
+		\item soulad mezi očekávaným počtem vystoupení soutěže a skutečným počtem v harmonogramu,
+		\item neprázdnost klíčových datových množin (soutěže, vystoupení, účastníci, porota).
+	\end{itemize}
 	
-				Všechny uvedené entity jsou propojeny pomocí identifikátoru soutěže. Tím vzniká konzistentní celek, který reprezentuje soutěž z pohledu systému. Tento celek slouží jako základ pro následnou analytickou kontrolu harmonogramu.
-				
-				% TODO: вообще бредово выглядит описывать здесь снова сущности танцевального конкурса. Возможно стоит просто обозначатить что для каждой сущности описанной в доменном контексте следует создать ее репрезентацию в программе
+	Nálezy z těchto kontrol se ukládají do společné diagnostiky. Podle dopadu jsou vedeny jako chyby nebo varování. Chyby obvykle blokují pokračování analýzy, zatímco varování na problém upozorňují, ale samy o sobě běh zastavit nemusí.
 	
-			\subsection{Centrální repozitář dat}
-				Data použitá v systému pocházejí z více vstupních tabulek. Po vytvoření doménových entit je nutné tyto entity spravovat jako jeden celek, který bude dostupný pro další části aplikace. Z tohoto důvodu je v návrhu zaveden centrální repozitář dat.
+	Výsledná diagnostika z validace vstupu i repozitáře je následně předána do politiky připravenosti dat k analýze, která rozhoduje o pokračování zpracování.
 	
-				Centrální repozitář uchovává všechny doménové entity a představuje sjednocený model konkrétní soutěže. Současně plní roli jednotného zdroje dat pro analytickou vrstvu. Repozitář tak tvoří rozhraní mezi přípravou dat a analytickou částí systému.
-
-				Centralizace dat přináší jednotný přístup k informacím, snižuje složitost analytické části a současně vytváří podmínky pro budoucí rozšiřování systému. Doménový model spolu s centrálním repozitářem proto tvoří datové jádro navrženého řešení, nad kterým je postavena kontrola harmonogramu.
+	\section{Politika připravenosti dat k analýze}
 	
-			%TODO: секция валидации
+	Po dokončení vstupní a doménové fáze systém vyhodnocuje, zda jsou data připravena pro pravidlovou analýzu. Tato část funguje jako rozhodovací brána mezi přípravou dat a analytickou vrstvou.
 	
-		\section{Návrh vrstvy načítání vstupních dat}
+	Rozhodnutí vychází ze společné diagnostiky, která vzniká ve dvou místech: při čtení vstupních tabulek a při validaci centrálního repozitáře. Nejdříve se posuzují chyby schématu tabulek, tedy například situace, kdy mapování odkazuje na sloupec, který ve vstupním souboru neexistuje. Pokud je taková chyba nalezena, další zpracování se zastaví a analýza se nespustí.
 	
-			Tato sekce popisuje návrh vrstvy, která zajišťuje převod vstupních tabulek do doménového modelu systému. Cílem této vrstvy je spolehlivý a opakovatelný import dat z různě strukturovaných tabulek a jejich příprava pro analytické jádro. Importní vrstva tvoří vstupní bránu systému mezi externími daty a interní reprezentací soutěže.
+	Dále se vyhodnocují chyby z validace repozitáře. Pokud diagnostika obsahuje blokující nálezy na úrovni interního modelu, systém také nepokračuje do pravidlové kontroly. Uživatel v obou případech dostane informaci, proč byl běh ukončen.
 	
-			\subsection{Role vstupních tabulek v systému}
-				Vstupní data jsou v praxi poskytována ve formě tabulek, nejčastěji ve formátu Excel. Tyto tabulky představují hlavní zdroj informací o soutěžích, vystoupeních, členech poroty a tanečnících. %TODO: не чаще всего в формате Excel, а всегда в формате Excel
+	Jestliže diagnostika neobsahuje blokující chyby, systém pokračuje pravidlovou analýzou harmonogramu. Diagnostická zjištění zůstávají dostupná i v tomto případě, aby měl uživatel při interpretaci výsledků plný kontext.
 	
-				Tabulky však nejsou součástí navrženého systému, ale externím zdrojem dat. Systém proto nemůže předpokládat jednotnou strukturu vstupu. V reálné praxi se mezi soutěžemi liší názvy sloupců, jejich pořadí i celkové uspořádání tabulek. Rozdílná může být také kvalita dat. % TODO: вообще хз для чего это нужно ибо я уже описывал проблему с вводными данными
+	Návrh politiky je záměrně oddělen od ostatních částí pipeline. Díky tomu lze pravidla rozhodování upravovat bez zásahu do vstupní vrstvy nebo do analytického modulu, což usnadňuje další rozvoj systému i přizpůsobení praxi.
 	
-				Z tohoto důvodu je nutné zavést samostatnou vrstvu načítání vstupních dat, která odděluje práci s externími tabulkami od interní analytické části systému.
+	\section{Návrh pravidlové analytické vrstvy}
 	
-			\subsection{Problém variability struktury tabulek}
-				Významným problémem je variabilita struktury tabulek mezi různými organizátory a různými soutěžemi. Stejné informace mohou být uvedeny pod odlišnými názvy sloupců, v jiném formátu nebo v jiné části tabulky.
-	
-				V praxi to znamená, že například identifikace soutěže, časové údaje nebo údaje o osobách mohou mít různou podobu. Import dat proto nemůže být založen na pevném schématu, které by předpokládalo stále stejný formát.
-	
-				Aby bylo možné data načítat opakovaně a spolehlivě, je nutné použít mechanismus mapování sloupců mezi externí tabulkou a interním modelem systému.
-	
-			\subsection{Koncepce mapování sloupců}
-				Mapování sloupců představuje hlavní princip importní vrstvy. Při prvním načtení uživatel přiřadí sloupce vstupní tabulky k odpovídajícím atributům doménového modelu. Tím vzniká most mezi konkrétním formátem tabulky a interní reprezentací dat.
-	
-				Mapování směřuje na atributy klíčových doménových entit, zejména Soutěž, Vystoupení, Člen poroty a Tanečník. Díky tomuto přístupu není nutné upravovat původní tabulky podle jednoho pevného vzoru.
-	
-			%TODO: добавить секцию, где будет описываться, что парсинг система должна быть толеранта к пустым рядам или если нужны столбцы ряда содержать неприавльную информацию
-			
-			% в принципе в этой части нужно описать только сам смысл слоя и фишки по типо безопасного парсинга, сбора проблем, маппинга
-
-
-	\section{Koncepce pravidlové analýzy}
-	
-	\subsection{Politika připravenosti analýzy}
-	Po dokončení validace a sestavení interní reprezentace dat systém vyhodnocuje připravenost analýzy. Tento krok funguje jako rozhodovací brána mezi přípravou dat a pravidlovou kontrolou harmonogramu.
-	
-	Vstupem do tohoto rozhodnutí jsou diagnostické informace z předchozích fází. Pokud systém detekuje závažné problémy, které mohou zásadně zkreslit výsledek, pravidlová analýza se nespustí. Uživatel v takovém případě obdrží informaci o důvodu blokace.
-	
-	Pokud zjištěné problémy nemají blokující charakter, analýza může pokračovat. Diagnostická zjištění jsou současně zachována a prezentována uživateli, aby měl při interpretaci výsledků plný kontext.
-	
-	Politika připravenosti analýzy tak zajišťuje, že pravidlová kontrola probíhá pouze nad daty, která jsou pro tento účel dostatečně spolehlivá. Tím se zvyšuje důvěryhodnost výstupu i stabilita celého procesu.
-	% TODO: думаю, что не самое лучшее место описывать политику проверки здесь.
-
 	\subsection{Typy kontrolních pravidel}
-	Kontrolní pravidla jsou rozdělena do skupin podle typu konfliktu, který mají odhalit. Toto členění vychází z formalizace plánovacího problému a z praktických situací, které vznikají při organizaci soutěže.
+	Pravidlová vrstva provádí kontrolu harmonogramu nad interním časovým modelem soutěže. Pravidla jsou rozdělena podle typu konfliktu, který detekují.
 	
-	První skupinu tvoří pravidla časových kolizí. Tato pravidla kontrolují, zda jedna osoba není přiřazena ke dvěma vystoupením ve stejném čase. Kontrola se týká soutěžících i členů poroty.
+	\begin{itemize}
+		\item \textbf{Časové kolize} -- kontrola, že jedna osoba není přiřazena ke dvěma překrývajícím se vystoupením ve stejném čase.
+		\item \textbf{Minimální rozestupy} -- kontrola minimálního času na odpočinek a převlečení u soutěžících a minimálních odstupů mezi bloky u poroty.
+		\item \textbf{Maximální intervaly} -- kontrola, že čekání mezi vystoupeními nepřesahuje přijatelnou hranici.
+	\end{itemize}
 	
-	Druhou skupinu tvoří pravidla minimálních rozestupů. U soutěžících jde zejména o minimální čas na odpočinek a minimální čas na převlečení mezi vystoupeními. U poroty jde o minimální časové rozestupy mezi hodnoticími bloky.
+	Toto členění přímo navazuje na omezení definovaná v analytické části práce.
 	
-	Třetí skupinu tvoří pravidla maximálních intervalů mezi vystoupeními. Tato pravidla kontrolují, zda čekání soutěžícího mezi dvěma starty není nepřiměřeně dlouhé.
+	\subsection{Parametrizace pravidel a klasifikace porušení}
+	Pravidlová vrstva je navržena tak, aby její chování bylo řízeno konfigurací, nikoli pevně zadanými hodnotami v kódu. Díky tomu lze pravidla přizpůsobit konkrétní soutěži bez zásahu do implementace.
 	
-	%Čtvrtou skupinu tvoří pravidla konzistence harmonogramu vůči soutěžním datům. Tato pravidla porovnávají plánovaná kola v harmonogramu s očekávanou strukturou soutěží podle dostupných vstupních údajů.
+	Konfigurace umožňuje u jednotlivých pravidel zejména:
+	\begin{itemize}
+		\item pravidlo zapnout nebo vypnout,
+		\item nastavit parametry kontrolních podmínek,
+		\item omezit pravidlo jen na vybrané disciplíny,
+		\item definovat hraniční hodnoty pro klasifikaci porušení.
+	\end{itemize}
 	
-	Takto navržené skupiny pravidel pokrývají hlavní konflikty, které byly identifikovány v analytické části práce.
+	Typickým příkladem je pravidlo minimálního času na převlečení. V konfiguraci lze určit, pro které disciplíny se má pravidlo použít, jaká minimální doba je požadována a jak se podle velikosti odchylky určí závažnost porušení.
 	
-	\subsection{Parametrizace pravidel a závažnost porušení}
-	Jednotlivá pravidla jsou navržena jako parametrizovatelná. To znamená, že jejich prahové hodnoty lze upravit podle podmínek konkrétní soutěže. Typickým příkladem je minimální čas na převlečení nebo maximální přípustná doba čekání mezi vystoupeními.
+	Tento přístup umožňuje použít stejnou analytickou logiku na různých akcích a měnit pouze konfigurační hodnoty. Výstup analýzy pak obsahuje porušení s jednotně přiřazenou závažností podle aktuálně platné konfigurace.
 	
-	Parametrizace je důležitá, protože různé soutěže mohou mít odlišný rozsah, odlišný počet kategorií a odlišný časový rámec. Díky parametrům není nutné měnit samotnou strukturu pravidel při každé změně provozních podmínek.
-	
-	%Porušení pravidel jsou současně klasifikována podle závažnosti dopadu. V této práci jsou používány tři úrovně: kritická, střední a nízká. Kritická porušení představují stavy, které mohou přímo ohrozit realizaci harmonogramu. Střední porušení výrazně zhoršují průběh soutěže, ale obvykle neblokují akci okamžitě. Nízká porušení mají menší dopad, ale při větším počtu mohou snižovat kvalitu organizace.
-	
-	%Klasifikace závažnosti umožňuje vedoucímu soutěže určit priority oprav a zaměřit se nejdříve na nejrizikovější problémy.
-	
-	%TODO: уточнить, что параметризацию нужно вынести в отдельный файл, раскрыть тему
-	
-
 	\section{Návrh uživatelského workflow a výstupů}
 	
 	\subsection{Uživatelské workflow}
-	Navržené workflow je založeno na principu jednoho řízeného spuštění. Uživatel nejprve načte vstupní tabulky a nastaví mapování sloupců. Následně je k dispozici jedno hlavní tlačítko, kterým uživatel spustí celý zpracovatelský proces.
+	Workflow je navrženo jako jedno řízené spuštění. Uživatel vybere vstupní tabulky, nastaví mapování sloupců a spustí celý proces jedním hlavním příkazem.
 	
-	Po spuštění aplikace provádí navazující kroky interně: načtení a převod dat, sestavení doménového modelu a repozitáře, validace, vyhodnocení připravenosti dat a případně samotnou pravidlovou analýzu harmonogramu. Uživatel tedy nespouští jednotlivé fáze samostatně, ale iniciuje jeden komplexní proces.
+	Další kroky probíhají interně bez nutnosti ručního zásahu mezi jednotlivými fázemi. Systém postupně načte data, provede průběžné validace, sestaví interní model, vyhodnotí připravenost dat a podle výsledku buď spustí pravidlovou analýzu, nebo běh ukončí s vysvětlením důvodu.
 	
-	Důležitou vlastností workflow je, že proces nemusí vždy proběhnout až do analytické části. Pokud systém v průběhu zpracování zjistí závažné problémy ve vstupních datech, běh je ukončen v odpovídající fázi a analýza harmonogramu se neprovede.
-	
-	Na konci běhu uživatel obdrží buď výsledky analýzy, nebo zprávu, že analýza nebyla provedena, včetně důvodu. Tento návrh snižuje riziko chyb při obsluze a odpovídá reálnému použití aplikace v časově omezených podmínkách přípravy soutěže. %TODO: странное предложение
+	Tento způsob práce snižuje riziko chyb při obsluze a odpovídá reálné praxi, kde je potřeba opakovaně kontrolovat harmonogram v krátkém čase.
 	
 	\subsection{Návrh prezentace výsledků}
-	Výstup procesu má dvě základní podoby podle toho, jak zpracování dopadlo. Pokud proces proběhne úspěšně až do analytické fáze, systém zobrazí výsledky kontroly harmonogramu. Pokud je proces ukončen dříve, systém zobrazí informaci o neprovedení analýzy a důvody tohoto stavu.
+	Výstup běhu má dvě základní podoby. Pokud data projdou až do analytické části, uživatel dostane výsledky pravidlové kontroly harmonogramu. Pokud je běh ukončen dříve v politice připravenosti, systém zobrazí důvody, proč analýza nebyla provedena.
 	
-	V případě úspěšné analýzy jsou výsledky navrženy ve dvou doplňujících formách. První formou je strukturovaný report se seznamem nalezených porušení, jejich typem a úrovní závažnosti. Druhou formou je vizuální zvýraznění porušení přímo v rozvrhu, které poskytuje kontext pro následné úpravy.
-	
-	Kombinace těchto výstupů je prakticky přínosná, protože uživatel získá jak celkový přehled, tak detailní lokalizaci konkrétních problémů v harmonogramu.
+	Při úspěšném průchodu analýzou jsou výsledky prezentovány dvěma způsoby: jako přehled porušení a současně jako zvýraznění konfliktů v harmonogramu. První forma poskytuje souhrn, druhá forma dává kontext pro konkrétní úpravy.
 	
 	\subsection{Podpora opakované práce}
-	Protože vstupní data se před soutěží často mění, aplikace podporuje opakované běhy celého procesu. Uživatel může po úpravách tabulek znovu spustit stejný řídicí mechanismus a získat aktuální výsledek.
+	Návrh počítá s tím, že vstupní data se během přípravy soutěže opakovaně mění. Uživatel proto musí mít možnost spouštět celý proces nad aktualizovanými soubory bez zbytečného nastavování od začátku.
 	
-	Součástí návrhu je obnova předchozí relace a znovupoužití mapování sloupců. Uživatel tak nemusí opakovaně nastavovat stejné mapování při každém běhu, což významně zkracuje čas přípravy.
+	Součástí workflow je zachování pracovního kontextu mezi běhy, zejména znovupoužití již nastaveného mapování. Tím se zkracuje čas potřebný pro další kontrolu a podporuje se iterativní práce vedoucího soutěže.
 	
-	Tento přístup podporuje iterativní práci organizátora a umožňuje rychlé opakování kontroly bez zbytečné administrativní zátěže.
+	\section{Shrnutí návrhu}
+	Navržené řešení je koncipováno jako navazující proces od načtení vstupních tabulek po prezentaci výsledků pravidlové kontroly harmonogramu. Klíčovým principem je oddělení bezpečného čtení a průběžné diagnostiky dat od rozhodnutí o připravenosti a od samotné analytické kontroly.
 	
-	%TODO: добавить секцию с требованиями к дистрибуции приложения
+	Datové jádro systému tvoří doménový model a centrální repozitář, nad kterým je provedena pravidlová analýza. Politika připravenosti dat zajišťuje, že analýza probíhá pouze nad daty, která splňují požadovanou úroveň kvality.
+	
+	Návrh současně odpovídá praktickému způsobu použití aplikace: uživatel pracuje s jedním řízeným workflow, dostává srozumitelné výstupy a může rychle opakovat kontrolu po změnách ve vstupních tabulkách.
+
 
 	\chapter{Implementace aplikace}	
 	\section{Struktura projektu}
