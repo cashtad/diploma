@@ -410,77 +410,214 @@
 	
 	Návrh současně odpovídá praktickému způsobu použití aplikace: uživatel pracuje s jedním řízeným workflow, dostává srozumitelné výstupy a může rychle opakovat kontrolu po změnách ve vstupních tabulkách.
 
-	\chapter{Implementace aplikace}	
-	\section{Struktura projektu}
-	V této kapitole popíšu převod návrhu do konkrétní implementace. Nejprve představím strukturu projektu a odpovědnosti hlavních částí.
-
-	\subsection{Modulární členění implementace}
-	Popíšu hlavní implementační moduly a jejich vazby. Ukážu, jak členění podporuje čitelnost i budoucí rozšiřování. % здесь можно рассказать про каждый модуль, коротко описать его значение, чтобы пользователь мог ориентироваться. здесь модуль application по большей части вызывает другие модули
-
-	\subsection{Inicializace aplikace}
-	Vysvětlím, jak probíhá start aplikace a sestavení klíčových komponent. Uvedu, jak je řešeno předání závislostí mezi moduly. % инициализация проводится через ui controller, который собирает контейнер, а затем вызывает через него функции приложения
-
-	\section{Implementace ingestní pipeline} %TODO: поменять на парсинг или типо того
-	V této sekci popíšu implementaci načítání, mapování, parsování a validace vstupních dat. Cílem je ukázat, jak systém připravuje data pro analytické jádro.
-
-	\subsection{Načítání dat a mapování sloupců}
-	Vysvětlím implementaci práce se soubory, listy a mapováním polí. Popíšu i kontrolu použitelnosti mapování před analýzou.
+	\chapter{Implementace}
 	
-	%для считывания данных используется бибилиотека пандас, которая безопасно в формате сессии считывает данные таблицы. 
-
-	\subsection{Parsování tabulek}
-	Popíšu převod tabulkových dat do doménových objektů. Zaměřím se na práci s chybami a uživatelsky srozumitelné hlášení problémů.
-
-	\subsection{Víceúrovňová validace dat}
-	Vysvětlím validaci na úrovni schématu, řádků a konzistence repozitáře. Uvedu, jak validační výsledek ovlivňuje další průběh workflow.
-
-	\section{Implementace repozitáře a doménového modelu}
-	V této sekci popíšu technickou realizaci interních entit a centrálního repozitáře. Zaměřím se na konzistenci dat a práci se vztahy mezi entitami.
-
-	\subsection{Implementace doménových entit}
-	Ukážu, jak jsou v kódu realizovány entity a jejich invarianty. Vysvětlím, jak tyto invarianty chrání systém před nekorektními stavy.
+	\section{Použité technologie a struktura řešení}
+	Aplikace je implementována v jazyce Python. Pro desktopové rozhraní je použita knihovna \texttt{PySide6}, pro práci s tabulkami \texttt{pandas} a pro konfiguraci pravidel formát YAML.
 	
-	% здесь можно показать глвыне моменты классов домена, что я использую froze, dataclass, пост инит для валидаций, покажу frozenset
-
-	\subsection{Implementace centrálního repozitáře}
-	Popíšu, jak repozitář ukládá a zpřístupňuje data analytickým pravidlům. Uvedu klíčové operace používané během analýzy.
+	Projekt je rozdělen do několika logických vrstev. Vrstva \texttt{presentation} obsahuje grafické rozhraní a řízení interakcí uživatele. Vrstva \texttt{application} obsahuje workflow, use-cases, politiky a synchronizační služby. Vrstva \texttt{ingestion} řeší načítání a parsování tabulek. Vrstva \texttt{domain} obsahuje doménový model, validaci repozitáře a pravidlovou analýzu. Vrstva \texttt{infrastructure} zajišťuje konkrétní technické adaptéry, například čtení Excelu, práci se session a generování HTML reportu.
 	
-	% здесь расскажу и покажу как оно устроено, в том числе работу через словарь по ключам для быстрого доступа. Объясню всё с точки зрения быстроты. Опишу основные функции, которыми вызывается репозиторий.
-
-	\section{Implementace pravidlového analytického modulu}
-	V této sekci popíšu realizaci pravidel, inferenčního běhu a agregace porušení. Cílem je ukázat, jak je v praxi naplněna koncepce pravidlové analýzy.
+	Sestavení závislostí probíhá centrálně v modulu \texttt{bootstrap.py}. Tento modul vytváří aplikační kontejner a propojuje jednotlivé služby do jednoho běhu.
 	
-	% здесь будет интересно поговорить о вычислительной сложности
-
-	\subsection{Implementace kontrolních pravidel}
-	Popíšu implementaci jednotlivých skupin pravidel a jejich vyhodnocování nad repozitářem. Uvedu, jak pravidla vytvářejí porušení s kontextovými detaily.
-
-	\subsection{Běh analýzy a zpracování výsledků}
-	Vysvětlím, jak probíhá spuštění pravidel, deduplikace a seskupení výsledků. Uvedu, jak jsou výsledky připraveny pro prezentační vrstvu.
-
-	\section{Implementace aplikačního workflow}
-	V této sekci popíšu orchestraci use-case kroků od přípravy dat po finální výstup. Zaměřím se na řízení stavů a chování aplikace při chybách.
-
-	\subsection{Orchestrace use-case kroků}
-	Popíšu implementaci návaznosti přípravy dat, sestavení repozitáře a analýzy. Vysvětlím, jak jsou mezi kroky předávány výsledky.
-
-	\subsection{Ukládání a obnova relace}
-	Vysvětlím technickou realizaci persistence relace mezi běhy aplikace. Uvedu, jak obnova relace podporuje efektivní opakovanou práci.
-
-	\section{Implementace uživatelského rozhraní a reportingu}
-	V této sekci popíšu realizaci hlavního rozhraní, dialogů a reportů. Cílem je ukázat, jak jsou analytické výsledky předávány uživateli v přehledné podobě.
-
-	\subsection{Hlavní ovládací rozhraní}
-	Popíšu implementaci práce s tabulkami, mapováním a spuštěním analýzy. Uvedu logiku stavů, která uživatele vede správným postupem.
-
-	\subsection{Zobrazení kvality dat a porušení}
-	Vysvětlím implementaci zobrazení kvality dat a propojení porušení s konkrétními řádky rozvrhu. Ukážu, jak to usnadňuje identifikaci a opravu problémů.
-
-	\subsection{Generování reportů}
-	Popíšu implementaci reportingu včetně HTML výstupu. Uvedu, jak report podporuje sdílení a následnou interpretaci výsledků.
-
-	\section{Omezení implementace}
-	V této sekci transparentně uvedu technická a provozní omezení aktuální verze řešení. Konkrétně popíšu závislost na formátu XLS/XLSX, cílení na Windows distribuci, absenci optimalizace harmonogramu, omezené pokrytí pravidel a chybějící real-time integraci s externím portálem.
+	\section{Implementace vstupní vrstvy}
+	
+	\subsection{Načtení tabulek a mapování sloupců}
+	Aplikace pracuje se čtyřmi pevně danými tabulkami: soutěže, soutěžící, porota a harmonogram. Definice těchto tabulek a mapovacích polí je centralizována v registru \texttt{tables.py} (\texttt{TableKey}, \texttt{TableSpec}, \texttt{TableMappingSchema}).
+	
+	Uživatel nastavuje mapování v dialogu \texttt{MappingDialog}. Dialog zobrazuje aktuální sloupce tabulky a mapovací pole podle typu tabulky. Povinná pole jsou kontrolována při potvrzení mapování.
+	
+	Validace mapování je implementována ve službě \texttt{MappingValidationService}. Kontroluje se zejména:
+	\begin{itemize}
+		\item vyplnění povinných mapovacích polí,
+		\item existence vybraných sloupců v aktuální tabulce,
+		\item pravidla pro přiřazovací sloupce (prefix nebo číselné hlavičky),
+		\item specifická podmínka pro porotu (buď \texttt{fullname}, nebo \texttt{name}+\texttt{surname}).
+	\end{itemize}
+	
+	\subsection{Bezpečné čtení a průběžná diagnostika}
+	Samotné načítání tabulek je implementováno ve službě \texttt{TableIngestionService}. Pro každou tabulku probíhá stejný základní postup:
+	\begin{enumerate}
+		\item kontrola cesty k souboru,
+		\item kontrola existence listu,
+		\item načtení DataFrame přes \texttt{PandasExcelReader},
+		\item kontrola signatury sloupců,
+		\item validace mapování,
+		\item parsování řádků tabulkovým parserem.
+	\end{enumerate}
+	
+	Diagnostika je ukládána jako \texttt{IngestionIssue} s úrovní \texttt{ERROR}/\texttt{WARNING}. Kritické chyby schématu (např. neexistující sloupec v mapování) zastaví parsování dané tabulky, ale neukončí celý workflow okamžitě.
+	
+	Řádkové chyby jsou evidovány průběžně parserem. Například parser harmonogramu (\texttt{ScheduleTableParser}) přeskočí řádek bez ID soutěže jako varování a u neplatných hodnot zapíše řádkovou chybu. Časové hodnoty a délky jsou parsovány tolerantně, včetně fallbacku přes \texttt{pandas.to\_datetime} a \texttt{pandas.to\_timedelta}.
+	
+	\subsection{Parsování přiřazovacích sloupců}
+	U soutěžících a poroty je použit společný základ \texttt{AssignmentTableParserBase}. Tato část řeší výběr sloupců přiřazení buď podle prefixu, nebo podle číselných hlaviček.
+	
+	Výběr sloupců provádí \texttt{AssignmentColumnsSelector}. Pokud není nalezena použitelná sada sloupců, parser vrátí diagnostickou chybu \texttt{ASSIGNMENT\_COLUMNS\_NOT\_FOUND} a tabulka je vyhodnocena jako nevalidní pro další krok.
+	
+	\section{Implementace správy session a stavů tabulek}
+	
+	\subsection{Datový model session}
+	Běhový stav aplikace je uložen ve struktuře \texttt{AppSession}. Pro každou tabulku je veden \texttt{TableRuntimeState}, který obsahuje cestu k souboru, list, mapování, signaturu sloupců, status a běhová data.
+	
+	Status tabulky je reprezentován výčtem \texttt{TableStatus} (např. \texttt{EMPTY}, \texttt{READY}, \texttt{MAPPING\_STALE}, \texttt{BROKEN\_SHEET}).
+	
+	\subsection{Persistování session}
+	Session je ukládána přes \texttt{JsonSessionStore} do souboru \texttt{session.json} (s verzí session). Ukládání probíhá atomicky přes dočasný soubor, aby se minimalizovalo riziko poškození dat při zápisu.
+	
+	Při startu aplikace se volá \texttt{RestoreSessionUseCase}, který obnoví uložené nastavení a dopočítá výchozí statusy. Následně \texttt{RevalidateSessionUseCase} provede opětovné ověření vstupů proti aktuálním souborům.
+	
+	\subsection{Synchronizace stavů po ingesti}
+	Po načtení dat synchronizuje statusy služba \texttt{SessionStatusSyncService}. Ta převádí schématické chyby/varování na běhové stavy přes \texttt{TableStatusTransitionService}.
+	
+	Typické scénáře:
+	\begin{itemize}
+		\item neexistující soubor $\rightarrow$ \texttt{BROKEN\_PATH},
+		\item neexistující list $\rightarrow$ \texttt{BROKEN\_SHEET},
+		\item změna signatury sloupců $\rightarrow$ \texttt{MAPPING\_STALE},
+		\item bez schématických chyb a s mapováním $\rightarrow$ \texttt{READY}.
+	\end{itemize}
+	
+	\section{Implementace doménového modelu a repozitáře}
+	
+	\subsection{Doménové entity}
+	Doménový model je implementován třídami \texttt{Competition}, \texttt{Performance}, \texttt{Competitor}, \texttt{JuryMember}. Každá entita provádí základní validaci v metodě \texttt{\_\_post\_init\_\_} (např. kladné ID, neprázdná jména, konzistence délky a času výkonu).
+	
+	\subsection{Centrální repozitář}
+	Po parsování jsou entity ukládány do \texttt{ScheduleRepository}. Repozitář drží:
+	\begin{itemize}
+		\item soutěže podle ID,
+		\item vystoupení podle ID soutěže,
+		\item množinu soutěžících,
+		\item množinu členů poroty.
+	\end{itemize}
+	
+	Dále poskytuje pomocné dotazy, například seznam vystoupení člověka (\texttt{list\_assignments\_of\_human}) seřazený podle času.
+	
+	\subsection{Validace repozitáře}
+	Sestavení repozitáře zajišťuje \texttt{ScheduleRepositoryBuilder}. Hned po sestavení se spouští \texttt{ScheduleRepositoryValidator}, který běží deterministickou pipeline kontrol.
+	
+	Validace zahrnuje mimo jiné:
+	\begin{itemize}
+		\item neznámé soutěže ve vystoupeních,
+		\item duplicitní vystoupení,
+		\item odkazy soutěžících/poroty na neexistující soutěže,
+		\item soutěže bez vystoupení,
+		\item prázdné klíčové množiny (např. žádné soutěže nebo žádná vystoupení),
+		\item nesoulad počtu kol (\texttt{amount\_of\_rounds} vs. harmonogram).
+	\end{itemize}
+	
+	Výstupem je \texttt{ScheduleRepositoryValidationReport} s rozdělením na chyby a varování.
+	
+	\section{Implementace politiky připravenosti dat}
+	Rozhodnutí o spuštění analýzy je implementováno třídou \texttt{AnalyzeReadinessPolicy}. Politika vyhodnocuje společně:
+	\begin{itemize}
+		\item chyby schématu ze vstupní ingest fáze,
+		\item chyby validace repozitáře,
+		\item varování (neblokující důvody).
+	\end{itemize}
+	
+	V aktuální implementaci platí:
+	\begin{itemize}
+		\item pokud existují schématické chyby, analýza je zablokována,
+		\item pokud existují chyby repozitáře, analýza je zablokována,
+		\item varování analýzu neblokují, ale jsou součástí reportu.
+	\end{itemize}
+	
+	Politika vrací \texttt{AnalyzeReadinessResult} s rozhodnutím \texttt{ALLOW}/\texttt{BLOCK} a seznamem důvodů.
+	
+	\section{Implementace pravidlové analytické vrstvy}
+	
+	\subsection{Konfigurace pravidel}
+	Konfigurace pravidel je načítána z YAML souboru přes \texttt{YamlRulesConfigLoader}. Pokud soubor neexistuje, vytvoří se výchozí konfigurace.
+	
+	Každé pravidlo má samostatnou sekci. Konfigurace umožňuje:
+	\begin{itemize}
+		\item zapnutí/vypnutí pravidla (\texttt{enabled}),
+		\item nastavení prahů závažnosti (\texttt{thresholds}),
+		\item doplňkové parametry podle typu pravidla (např. \texttt{rest\_time}, \texttt{disciplines}, \texttt{min\_gap\_minutes}).
+	\end{itemize}
+	
+	\subsection{Implementovaná pravidla}
+	Pravidla jsou implementována jako samostatné třídy nad společným základem \texttt{ARule}. V implementaci jsou použita pravidla:
+	\begin{itemize}
+		\item \texttt{SimultaneousDancingRule},
+		\item \texttt{SimultaneousJudgingRule},
+		\item \texttt{MaxContinuousDancingRule},
+		\item \texttt{MaxContinuousJudgingRule},
+		\item \texttt{CostumeChangeTimeRule},
+		\item \texttt{MaxGapBetweenPerformancesRule}.
+	\end{itemize}
+	
+	Společné části logiky (např. bloky souvislé činnosti, detekce překryvů) jsou vytaženy do abstraktních pomocných tříd \texttt{ContinuousActivityRule} a \texttt{SimultaneousRule}.
+	
+	\subsection{Inference engine a výsledky analýzy}
+	Pravidla jsou spouštěna třídou \texttt{InferenceEngine}. Engine postupně vyhodnotí všechna aktivní pravidla, sloučí porušení, deduplikuje je a připraví agregace podle závažnosti a podle pravidla.
+	
+	Výstupem je \texttt{ScheduleAnalysisResult}. Jednotlivé nálezy jsou reprezentovány entitou \texttt{Violation}, která obsahuje typ pravidla, závažnost, popis, kontext a zdrojové řádky harmonogramu.
+	
+	\section{Implementace workflow analýzy}
+	Celý běh je řízen službou \texttt{AnalyzeWorkflowService}. Workflow má tento průběh:
+	\begin{enumerate}
+		\item \texttt{PrepareDataUseCase} (ingest + diagnostika + synchronizace stavů),
+		\item \texttt{BuildRepositoryUseCase} (sestavení repozitáře + validace),
+		\item vyhodnocení \texttt{AnalyzeReadinessPolicy},
+		\item při povolení: \texttt{RunScheduleAnalysisUseCase},
+		\item vytvoření \texttt{AnalyzeWorkflowResult}.
+	\end{enumerate}
+	
+	Workflow vrací tři možné stavy:
+	\begin{itemize}
+		\item \texttt{SUCCESS},
+		\item \texttt{BLOCKED},
+		\item \texttt{FAILED}.
+	\end{itemize}
+	
+	Součástí výsledku je vždy \texttt{DataQualityReport}, který nese diagnostiku kvality dat a důvody readiness rozhodnutí.
+	
+	\section{Implementace uživatelského rozhraní}
+	
+	\subsection{Hlavní okno a řízení akcí}
+	Hlavní okno (\texttt{MainWindow}) vytváří panely pro čtyři tabulky, tlačítko spuštění analýzy a stavový panel výsledku.
+	
+	UI komunikuje s aplikační vrstvou přes \texttt{UiController}. Controller zapouzdřuje session operace, preflight validaci mapování, spuštění workflow i přístup k posledním výsledkům analýzy.
+	
+	\subsection{Stavy tabulek v UI}
+	Komponenta \texttt{TableLoadPanel} zobrazuje stav každé tabulky barevným indikátorem a akcemi podle aktuálního stavu.
+	
+	Panel podporuje:
+	\begin{itemize}
+		\item výběr souboru a listu,
+		\item otevření mapování,
+		\item automatické použití uloženého mapování, pokud je stále validní,
+		\item přechod do stavu \texttt{READY} po úspěšném mapování.
+	\end{itemize}
+	
+	\subsection{Prezentace výsledků analýzy}
+	Komponenta \texttt{AnalysisStatusPanel} rozlišuje stavy úspěch, blokace a selhání. Podle stavu zpřístupňuje tlačítka pro:
+	\begin{itemize}
+		\item report kvality dat,
+		\item otevření HTML reportu,
+		\item přehled narušení v harmonogramu.
+	\end{itemize}
+	
+	Detailní kvalita dat je zobrazena v dialogu \texttt{DataQualityReportDialog} se záložkami pro readiness důvody, chyby repozitáře, řádkové problémy a schématické problémy.
+	
+	\subsection{Vizualizace porušení v harmonogramu}
+	Dialog \texttt{ScheduleViewDialog} zobrazuje harmonogram jako tabulku a mapuje na něj nalezená porušení. Řádky jsou barevně odlišeny podle nejvyšší závažnosti narušení.
+	
+	Po kliknutí na řádek se zobrazí panel s konkrétními porušeními, včetně detailu pravidla a možnosti zvýraznit přesné řádky spojené s vybraným narušením.
+	
+	\section{Generování reportů}
+	Pro externí sdílení výsledků je implementováno generování HTML reportu. Výstup vytváří \texttt{HtmlExplanationReportWriter} pomocí \texttt{ExplanationGenerator}.
+	
+	Report obsahuje souhrn počtu porušení podle závažnosti a detailní sekce podle pravidel. U každého porušení jsou uvedeny relevantní časové údaje, kontext a řádky harmonogramu.
+	
+	\section{Shrnutí implementace}
+	Implementace realizuje kompletní pipeline od načtení Excel tabulek až po pravidlovou analýzu a prezentaci výsledků. Důraz je kladen na odolné zpracování vstupů, průběžnou diagnostiku, oddělenou politiku připravenosti dat a konfigurovatelnou pravidlovou vrstvu.
+	
+	Výsledná aplikace podporuje praktický způsob práce vedoucího soutěže: opakované běhy nad měnícími se daty, znovupoužití mapování a srozumitelné výstupy pro rychlou korekci harmonogramu.
+		
+		
 	
 	%\chapter{Implementace aplikace}	
 		%\section{Использованные технологии}
