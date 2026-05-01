@@ -9,11 +9,12 @@
 \usepackage[backend=biber]{biblatex}
 \addbibresource{src/refs.bib}
 
-\abstract{Kratky abstract v cestine}
-{Short abstract in English.}
+\abstract
+{Implementovaná práce se zabývá problémem ověřování časového harmonogramu tanečních soutěží. Organizace soutěže vyžaduje koordinaci velkého množství vystoupení, soutěžících a porotců a manuální kontrola rozvrhu je časově náročná a náchylná k chybám. Cílem práce bylo navrhnout a realizovat desktopovou aplikaci, která načte provozní data soutěže z tabulkových souborů, sestaví z nich doménový model a automaticky vyhodnotí porušení definovaných pravidel. Řešení zahrnuje mechanismus mapování sloupců, validaci kvality vstupních dat a pravidlovou analytickou vrstvu s konfigurovatelnými parametry. Funkčnost byla ověřena na reálných datových sadách a na záměrně upravených vstupech, kde aplikace spolehlivě detekovala vložené konflikty.}
+{This thesis addresses the problem of validating time schedules for dance competitions. Competition planning requires coordination of many performances, competitors, and jury members, while manual schedule checking is time-consuming and error-prone. The goal of the thesis was to design and implement a desktop application that loads operational competition data from spreadsheet files, builds an internal domain model, and automatically detects violations of predefined rules. The solution includes column mapping, input data quality validation, and a rule-based analysis layer with configurable parameters. The application was tested using real-world datasets as well as intentionally modified inputs, where it reliably detected the injected conflicts.}
 
 
-\keywords{key word 1, key word 2}
+\keywords{taneční soutěž, harmonogram, validace dat, detekce konfliktů, pravidlová analýza, desktopová aplikace, Python}
 \acknowledgement{...}
 
 
@@ -27,27 +28,36 @@
 	\tableofcontents
 	
 	\chapter{Úvod}
-		V úvodu vymezím praktický problém kontroly harmonogramu tanečních soutěží a stručně popíšu motivaci práce. Dále uvedu cíl, hlavní přínos aplikace a strukturu celé bakalářské práce.
+	
+		Organizace tanečních soutěží představuje komplexní proces, který vyžaduje pečlivou koordinaci velkého množství účastníků, porotců a technického personálu. Ústředním dokumentem každé takové akce je časový harmonogram. Ten určuje nejen pořadí jednotlivých vystoupení, ale také zajišťuje, aby byly dodrženy všechny soutěžní řády, například dostatečný čas na odpočinek poroty nebo prostor pro převlečení kostýmů soutěžících. 
+	
+		V současné praxi je tvorba a kontrola harmonogramu často prováděna manuálně, s využitím běžných tabulkových procesorů a tištěných podkladů. Tento postup je však při větším rozsahu soutěže časově velmi náročný a náchylný k lidským chybám. Situaci navíc komplikují změny na poslední chvíli, jako jsou odhlášení soutěžících či spojování kategorií. Jakákoliv ruční úprava v rozvrhu vyžaduje opětovnou kontrolu všech návazností, což v časovém stresu těsně před začátkem soutěže zvyšuje riziko přehlédnutí konfliktů. Neodhalené chyby pak vedou ke zpožděním, stresu organizačního týmu a snížení komfortu všech zúčastněných.
+	
+		Cílem této práce je proto navrhnout a implementovat softwarový nástroj, který proces kontroly harmonogramu automatizuje. Aplikace má za úkol načíst provozní data soutěže, sestavit z nich vnitřní datový model a automaticky ověřit, zda rozvrh neporušuje definovaná pravidla. Důraz je kladen na to, aby byl nástroj robustní, bezpečně reagoval na chyby ve vstupních datech a plně podporoval iterativní způsob práce vedoucího soutěže.
+	
+		Text práce je logicky rozdělen do několika kapitol. Kapitola \textit{Analýza problematiky plánování taneční soutěže} popisuje doménový kontext tanečních soutěží, shrnuje typické problémy při ruční tvorbě harmonogramu a formalizuje omezení, která musí být kontrolována. Na ni navazuje kapitola \textit{Návrh řešení}, která představuje architekturu systému a popisuje návrh jednotlivých vrstev od načítání vstupních dat po pravidlovou analytickou část. Kapitola \textit{Implementace} se věnuje realizaci navrženého řešení a použitým technologiím. V kapitole \textit{Testování a ověření funkčnosti} jsou uvedeny testovací scénáře a ověření programu na reálných datech. Kapitola \textit{Diskuse} shrnuje přínosy výsledného řešení, jeho omezení a možnosti dalšího rozvoje. Práci uzavírá kapitola \textit{Závěr}.
+		
+	
 
 	\chapter{Analýza problematiky plánování taneční soutěže}
 	
 		\section{Doménový kontext tanečních soutěží}
 
 			\subsection{Průběh soutěže a role účastníků procesu}
-				Taneční soutěž v prostředí České republiky představuje organizačně náročnou sportovní akci, která se řídí pravidly Českého svazu tanečního sportu \cite{csts_soutezni_rad}. V praxi jde zpravidla o celodenní událost, během které probíhá více samostatných soutěží. Tyto soutěže mohou být zařazeny postupně, nebo paralelně podle kapacity a podmínek konkrétního místa konání.
-	
+				Taneční soutěž obecně představuje organizačně náročnou sportovní akci. V kontextu této práce jsou uvažovány soutěže, které se řídí pravidly Českého svazu tanečního sportu \cite{csts_soutezni_rad}. V praxi jde zpravidla o celodenní událost, během které probíhá více samostatných soutěží. Tyto soutěže mohou být zařazeny postupně, nebo paralelně podle kapacity a podmínek konkrétního místa konání.
+				
 				Z hlediska této práce je důležité rozlišit několik základních prvků soutěžního dne. Prvním prvkem jsou jednotlivé soutěže. Každá soutěž je určena kombinací věkové kategorie, disciplíny a výkonnostní třídy. Tato klasifikace vychází z pravidel svazu a určuje, kteří soutěžící mohou v dané soutěži startovat.
-	
+				
 				Druhým prvkem jsou vystoupení, tedy konkrétní kola jednotlivých soutěží. V harmonogramu má každé vystoupení přesně stanovený čas začátku, délku trvání a čas ukončení. Počet kol v soutěži není pevný, ale vychází z počtu přihlášených účastníků podle platných postupových pravidel \cite{csts_postupove_klice}. V důsledku toho může mít stejný typ soutěže v různých případech odlišný průběh.
-	
+				
 				Třetím důležitým prvkem jsou soutěžící. Ti se přihlašují prostřednictvím svazového portálu. V závislosti na disciplíně může soutěžit jednotlivec nebo taneční pár. Jeden soutěžící se může během jednoho dne účastnit více soutěží.
-	
+				
 				Dalším klíčovým prvkem jsou členové poroty. Porotci hodnotí jednotlivá vystoupení a pro soutěžní den mají určen seznam soutěží, která budou posuzovat.
-	
+				
 				Z organizačního pohledu je zásadní role vedoucího soutěže. Vedoucí připravuje časový harmonogram celého dne a rozhoduje o zařazení jednotlivých vystoupení do konkrétních časových bloků. Kvalita tohoto rozvržení přímo ovlivňuje plynulost soutěže, přehlednost pro všechny účastníky a celkovou úroveň organizace akce.
-	
+				
 			\subsection{Význam harmonogramu pro průběh akce}
-	
+			
 				Časový harmonogram je základní organizační dokument celého soutěžního dne. Určuje pořadí jednotlivých vystoupení, jejich časové zařazení a návaznost mezi jednotlivými bloky programu. Z praktického hlediska představuje hlavní plán, podle kterého se řídí průběh celé akce.
 	
 				Harmonogram má přímý vliv na orientaci všech účastníků. Soutěžící podle něj plánují svůj příchod, přípravu a přesuny mezi jednotlivými koly. Porotci podle harmonogramu vědí, kdy a kde mají hodnotit konkrétní soutěže. Stejně tak organizační tým používá harmonogram jako podklad pro koordinaci jednotlivých činností během dne.
@@ -204,12 +214,11 @@
 		\section{Požadavky na aplikaci}
 	
 			\subsection{Funkční požadavky}
-			
 				Funkční požadavky vycházejí z provedené analýzy plánovacího problému, formalizace omezení a charakteru vstupních dat. Cílem je vymezit, jaké funkce musí aplikace poskytovat, aby bylo možné v praxi spolehlivě kontrolovat harmonogram soutěže.
 			
-				Prvním požadavkem je načtení vstupních dat z konkrétních pracovních tabulek používaných při přípravě soutěže. Systém musí podporovat import čtyř základních tabulek: seznam soutěží, seznam účastníků, seznam členů poroty a tabulku harmonogramu.
+				Prvním požadavkem je načtení vstupních dat z konkrétních pracovních tabulek používaných při přípravě soutěže. Systém musí podporovat import tří základních tabulek: seznam soutěží, seznam účastníků a tabulku harmonogramu, přičemž seznam členů poroty je volitelný a může být načten, pokud je k dispozici.
 			
-				Druhým požadavkem je převod načtených dat do interní reprezentace soutěže ve formě časového modelu. Aplikace musí vytvořit konzistentní vazby mezi soutěžemi, koly, soutěžícími, porotou a časovými intervaly harmonogramu tak, aby bylo možné nad tímto modelem jednoznačně aplikovat pravidla a omezení.
+				Druhým požadavkem je převod načtených dat do interní reprezentace soutěže ve formě časového modelu. Aplikace musí vytvořit konzistentní vazby mezi soutěžemi, koly, soutěžícími a časovými intervaly harmonogramu; pokud je k dispozici tabulka poroty, musí být do tohoto modelu zahrnuty také vazby na členy poroty tak, aby bylo možné nad výsledným modelem jednoznačně aplikovat pravidla a omezení.
 			
 				Třetím požadavkem je automatická kontrola omezení nad celým harmonogramem a evidence zjištěných porušení. Systém musí aplikovat definovaná pravidla, identifikovat konfliktní situace a ukládat jednotlivá porušení včetně jejich klasifikace podle závažnosti.
 			
@@ -227,7 +236,7 @@
 			
 				Klíčovým požadavkem je robustnost a odolnost proti chybám vstupů. Vzhledem k povaze provozních dat, která mohou obsahovat překlepy, prázdné buňky nebo nekonzistentní formáty času, nesmí aplikace při načítání takových souborů neočekávaně ukončit běh. Místo toho musí vstupní data validovat, případné anomálie bezpečně zachytit a uživateli zobrazit srozumitelnou zprávu o chybě parsování.
 			
-				Dalším požadavkem je použitelnost a ergonomie. Aplikace je určena uživatelům bez hluboké technické expertizy. Rozhraní proto musí být intuitivní, vizuálně čisté a musí zřetelně zvýrazňovat nalezené kritické konflikty, aby organizátor na první pohled identifikoval problematická místa v rozvrhu.
+				Dalším požadavkem je použitelnost a ergonomie. Aplikace je určena uživatelům bez hluboké technické expertizy. Rozhraní proto musí být intuitivní, vizuálně čisté a musí zřetelně zvýrazňovat nalezené kritické konflikty, aby organizátor na první pohled identifikoval problematická místa v rozvrhu. Instalace aplikace by neměla být příliš složitá a neměla by vyžadovat instalaci dalšího softwaru.
 			
 				Posledním významným požadavkem je udržitelnost a softwarová rozšiřitelnost. Architektura aplikace musí být navržena modulárně. Tento návrh musí umožnit budoucím vývojářům snadnou implementaci a integraci nových validačních tříd, aniž by bylo nutné zasahovat do stávajícího zdrojového kódu jádra aplikace.
 	
@@ -259,464 +268,477 @@
 	
 	\chapter{Návrh řešení}
 	
-	\section{Přehled navrženého zpracování}
+		\section{Přehled navrženého zpracování}
 	
-	\subsection{Cíl navrženého řešení}
-	Cílem navrženého řešení je vytvořit praktický nástroj pro automatizovanou kontrolu harmonogramu taneční soutěže. Návrh vychází z funkčních a nefunkčních požadavků definovaných v analytické části práce a přímo navazuje na formalizaci plánovacího problému.
+			\subsection{Cíl navrženého řešení}
+				Cílem navrženého řešení je vytvořit praktický nástroj pro automatizovanou kontrolu harmonogramu taneční soutěže. Návrh vychází z funkčních a nefunkčních požadavků definovaných v analytické části práce a přímo navazuje na formalizaci plánovacího problému.
 	
-	Systém je navržen jako řízený proces, který přijímá vstupní tabulky, převádí je do interní reprezentace soutěže a následně provádí pravidlovou kontrolu. Výsledkem běhu je buď přehled porušení harmonogramu, nebo informace o tom, že analýzu nebylo možné spustit z důvodu nedostatečné kvality dat.
+				Systém je navržen jako řízený proces, který přijímá vstupní tabulky, převádí je do interní reprezentace soutěže a následně provádí pravidlovou kontrolu. Výsledkem běhu je buď přehled porušení harmonogramu, nebo informace o tom, že analýzu nebylo možné spustit z důvodu nedostatečné kvality dat.
 	
-	\subsection{Hlavní kroky zpracování}
-	Navržený proces je rozdělen do navazujících kroků. V prvním kroku systém načte čtyři vstupní tabulky ve formátu Excel a připraví data pro další zpracování pomocí mapování sloupců.
+			\subsection{Hlavní kroky zpracování}
+				Navržený proces je rozdělen do navazujících kroků. V prvním kroku systém načte vstupní tabulky ve formátu Excel a připraví data pro další zpracování pomocí mapování sloupců.
 	
-	Ve druhém kroku probíhá bezpečné čtení, předzpracování a sběr diagnostických zjištění. V této fázi systém neprovádí rozhodnutí o pokračování analýzy, ale pouze shromažďuje problémy nalezené ve vstupních datech.
+				Ve druhém kroku probíhá bezpečné čtení, předzpracování a sběr diagnostických zjištění. V této fázi systém neprovádí rozhodnutí o pokračování analýzy, ale pouze shromažďuje problémy nalezené ve vstupních datech.
 	
-	Ve třetím kroku jsou data převedena do doménového modelu soutěže a uložena do centrálního repozitáře. Následuje kontrola konzistence repozitáře a doplnění diagnostických informací o problémy vzniklé na úrovni interní reprezentace.
+				Ve třetím kroku jsou data převedena do doménového modelu soutěže a uložena do centrálního repozitáře. Následuje kontrola konzistence repozitáře a doplnění diagnostických informací o problémy vzniklé na úrovni interní reprezentace.
 	
-	Ve čtvrtém kroku probíhá vyhodnocení připravenosti dat k analýze. Tento krok rozhoduje, zda lze spustit pravidlovou kontrolu, nebo zda má být běh ukončen s vysvětlením důvodu.
+				Ve čtvrtém kroku probíhá vyhodnocení připravenosti dat k analýze. Tento krok rozhoduje, zda lze spustit pravidlovou kontrolu, nebo zda má být běh ukončen s vysvětlením důvodu.
 	
-	V pátém kroku je provedena pravidlová analýza harmonogramu. Posledním krokem je prezentace výstupů uživateli.
+				V pátém kroku je provedena pravidlová analýza harmonogramu. Posledním krokem je prezentace výstupů uživateli.
 	
-	\subsection{Odůvodnění zvoleného pořadí kroků}
-	Zvolené pořadí kroků je dáno požadavkem na spolehlivost výsledků. Pravidlová analýza je zařazena až po načtení dat, sestavení interní reprezentace a vyhodnocení připravenosti, aby nedocházelo k interpretaci neúplných nebo nekonzistentních vstupů.
+			\subsection{Odůvodnění zvoleného pořadí kroků}
+				Zvolené pořadí kroků je dáno požadavkem na spolehlivost výsledků. Pravidlová analýza je zařazena až po načtení dat, sestavení interní reprezentace a vyhodnocení připravenosti, aby nedocházelo k interpretaci neúplných nebo nekonzistentních vstupů.
 	
-	Dalším důvodem je oddělení odpovědností mezi vrstvami. Vstupní vrstva zajišťuje bezpečné zpracování dat a sběr problémů, doménová vrstva vytváří jednotnou reprezentaci soutěže a analytická vrstva řeší vlastní kontrolu omezení.
+				Dalším důvodem je oddělení odpovědností mezi vrstvami. Vstupní vrstva zajišťuje bezpečné zpracování dat a sběr problémů, doménová vrstva vytváří jednotnou reprezentaci soutěže a analytická vrstva řeší vlastní kontrolu omezení.
 	
-	Tento postup současně podporuje transparentnost vůči uživateli. Uživatel má k dispozici nejen výsledek analýzy, ale také informace o tom, ve které fázi případně došlo k blokaci běhu a proč.
+				Tento postup současně podporuje transparentnost vůči uživateli. Uživatel má k dispozici nejen výsledek analýzy, ale také informace o tom, ve které fázi případně došlo k blokaci běhu a proč.
 	
-	\section{Návrh vstupní vrstvy}
+		\section{Návrh vstupní vrstvy}
 	
-	\subsection{Načtení vstupních tabulek}
-	Vstupní vrstva pracuje se čtyřmi tabulkami ve formátu Excel: tabulka soutěží, tabulka účastníků, tabulka poroty a tabulka harmonogramu. Tyto tabulky představují povinný vstup pro sestavení interní reprezentace soutěže.
+			\subsection{Načtení vstupních tabulek}
+				Vstupní vrstva pracuje se sadou tabulek ve formátu Excel: tabulkou soutěží, tabulkou účastníků, tabulkou harmonogramu a volitelně tabulkou poroty.
 	
-	Návrh této vrstvy vychází z toho, že část tabulek je exportována ze systému ČSTS a část je připravována ručně organizátorem soutěže. V důsledku toho nelze předpokládat zcela jednotnou strukturu souborů mezi různými akcemi.
+				Návrh této vrstvy vychází z toho, že část tabulek je exportována ze systému ČSTS a část je připravována ručně organizátorem soutěže. V důsledku toho nelze předpokládat zcela jednotnou strukturu souborů mezi různými akcemi.
 	
-	Úkolem vstupní vrstvy není hodnotit správnost harmonogramu, ale zajistit bezpečné převzetí dat a jejich přípravu pro další kroky pipeline.
+				Úkolem vstupní vrstvy není hodnotit správnost harmonogramu, ale zajistit bezpečné převzetí dat a jejich přípravu pro další kroky pipeline.
 	
-	\subsection{Mapování sloupců}
-	Vzhledem k variabilitě vstupních tabulek je součástí návrhu mechanismus mapování sloupců. Uživatel přiřazuje sloupce vstupních tabulek k požadovaným atributům interních entit.
+			\subsection{Mapování sloupců}
+				Vzhledem k variabilitě vstupních tabulek je součástí návrhu mechanismus mapování sloupců. Uživatel přiřazuje sloupce vstupních tabulek k požadovaným atributům interních entit.
 	
-	Mapování umožňuje oddělit logiku systému od konkrétní podoby tabulek. Díky tomu není nutné upravovat zdrojové soubory do pevně daného formátu a systém může být použit i při změně struktury vstupu.
+				Mapování umožňuje oddělit logiku systému od konkrétní podoby tabulek. Díky tomu není nutné upravovat zdrojové soubory do pevně daného formátu a systém může být použit i při změně struktury vstupu.
 	
-	%Návrh současně předpokládá znovupoužití mapování při opakované práci, aby uživatel nemusel při každém běhu proces nastavovat znovu.
+			\subsection{Bezpečné čtení a průběžná diagnostika vstupu}
+				V této části je čtení dat navrženo tak, aby bylo odolné vůči běžným problémům ve vstupních tabulkách. Cílem není ukončit běh při první chybě, ale bezpečně projít data, převést použitelné záznamy a současně průběžně sbírat informace o nalezených problémech.
 	
-	\subsection{Bezpečné čtení a průběžná diagnostika vstupu}
-	V této části je čtení dat navrženo tak, aby bylo odolné vůči běžným problémům ve vstupních tabulkách. Cílem není ukončit běh při první chybě, ale bezpečně projít data, převést použitelné záznamy a současně průběžně sbírat informace o nalezených problémech.
+				Nejprve se ověřuje, že tabulka obsahuje všechny sloupce definované v mapování. Tato kontrola zachytí situace, kdy je mapování nastaveno chybně nebo kdy se po jeho nastavení změnila struktura souboru.
 	
-	Nejprve se ověřuje, že tabulka obsahuje všechny sloupce definované v mapování. Tato kontrola zachytí situace, kdy je mapování nastaveno chybně nebo kdy se po jeho nastavení změnila struktura souboru.
+				Poté probíhá parsování jednotlivých řádků. Kontroly se provádějí přímo během zpracování každého řádku. Ověřuje se, zda řádek obsahuje hodnoty potřebné pro mapovaná pole a zda mají tyto hodnoty použitelný formát.
 	
-	Poté probíhá parsování jednotlivých řádků. Kontroly se provádějí přímo během zpracování každého řádku. Ověřuje se, zda řádek obsahuje hodnoty potřebné pro mapovaná pole a zda mají tyto hodnoty použitelný formát.
+				Pokud je řádek prázdný nebo neobsahuje informace důležité pro systém, je přeskočen bez přerušení celého procesu. Stejně se postupuje i u řádků, kde jsou v mapovaných polích neplatné hodnoty.
 	
-	Pokud je řádek prázdný nebo neobsahuje informace důležité pro systém, je přeskočen bez přerušení celého procesu. Stejně se postupuje i u řádků, kde jsou v mapovaných polích neplatné hodnoty.
+				Zvláštní pozornost je věnována časovým údajům a délkám trvání. Tyto hodnoty se mohou ve vstupech vyskytovat v různých zápisech, proto návrh počítá s tolerantním parsováním a záložním mechanismem parsování pro formáty \texttt{HH:MM:SS}, \texttt{MM:SS} a \texttt{MM}.
 	
-	Zvláštní pozornost je věnována časovým údajům a délkám trvání. Tyto hodnoty se mohou ve vstupech vyskytovat v různých zápisech, proto návrh počítá s tolerantním parsováním a záložním mechanismem parsování pro formáty \texttt{HH:MM:SS}, \texttt{MM:SS} a \texttt{MM}.
+				Všechny zjištěné problémy jsou během čtení ukládány do diagnostiky. Tato diagnostika je následně předána do dalších částí systému, kde vstupuje do rozhodnutí o připravenosti dat k analýze.
 	
-	Všechny zjištěné problémy jsou během čtení ukládány do diagnostiky. Tato diagnostika je následně předána do dalších částí systému, kde vstupuje do rozhodnutí o připravenosti dat k analýze.
+		\section{Návrh doménového modelu a centrálního repozitáře}
 	
-	\section{Návrh doménového modelu a centrálního repozitáře}
+			\subsection{Doménové entity a vazby}
+				Doménová vrstva převádí načtená data do jednotné interní reprezentace soutěže. Smyslem této reprezentace je propojit informace z více tabulek do jednoho konzistentního celku, nad kterým lze provádět analytické operace.
 	
-	\subsection{Doménové entity a vazby}
-	Doménová vrstva převádí načtená data do jednotné interní reprezentace soutěže. Smyslem této reprezentace je propojit informace z více tabulek do jednoho konzistentního celku, nad kterým lze provádět analytické operace.
+				Model obsahuje programové reprezentace klíčových prvků soutěže: soutěž, vystoupení (kolo), účastník a člen poroty. Tyto entity odpovídají doménovému kontextu popsanému v analytické části, ale v návrhu jsou chápány jako interní datové objekty systému.
 	
-	Model obsahuje programové reprezentace klíčových prvků soutěže: soutěž, vystoupení (kolo), účastník a člen poroty. Tyto entity odpovídají doménovému kontextu popsanému v analytické části, ale v návrhu jsou chápány jako interní datové objekty systému.
+				Mezi entitami jsou definovány vazby podle identifikátorů soutěží a podle časových souvislostí harmonogramu. Tím vzniká časově orientovaný model soutěžního dne, který je vhodný pro následnou kontrolu omezení.
 	
-	Mezi entitami jsou definovány vazby podle identifikátorů soutěží a podle časových souvislostí harmonogramu. Tím vzniká časově orientovaný model soutěžního dne, který je vhodný pro následnou kontrolu omezení.
+			\subsection{Centrální repozitář dat}
+				Po vytvoření entit jsou data uložena do centrálního repozitáře. Repozitář představuje jednotný zdroj pravdy pro další zpracování a odděluje práci analytické vrstvy od přímé práce se vstupními soubory.
 	
-	\subsection{Centrální repozitář dat}
-	Po vytvoření entit jsou data uložena do centrálního repozitáře. Repozitář představuje jednotný zdroj pravdy pro další zpracování a odděluje práci analytické vrstvy od přímé práce se vstupními soubory.
+				Toto řešení zjednodušuje datový tok v systému. Analytická část nepracuje s jednotlivými tabulkami, ale s jednou sjednocenou strukturou.
 	
-	Toto řešení zjednodušuje datový tok v systému. Analytická část nepracuje s jednotlivými tabulkami, ale s jednou sjednocenou strukturou.
+			\subsection{Invariance modelu a validace repozitáře}
+				Nad interní reprezentací jsou definovány základní invariance, které musí být splněny, aby mělo smysl pokračovat do analytické části. Kontrola je zaměřena na konzistenci vazeb mezi entitami a na úplnost dat.
 	
-	\subsection{Invariance modelu a validace repozitáře}
-	Nad interní reprezentací jsou definovány základní invariance, které musí být splněny, aby mělo smysl pokračovat do analytické části. Kontrola je zaměřena na konzistenci vazeb mezi entitami a na úplnost dat.
+				V rámci validace repozitáře se ověřují zejména tyto podmínky:
+				\begin{itemize}
+					\item jedinečnost identifikátorů soutěží,
+					\item návaznost každého vystoupení na existující soutěž,
+					\item absence duplicitních vystoupení v harmonogramu,
+					\item existence alespoň jednoho vystoupení pro každou evidovanou soutěž,
+					\item soulad mezi očekávaným počtem vystoupení soutěže a skutečným počtem v harmonogramu,
+					\item neprázdnost klíčových datových množin (soutěže, vystoupení, účastníci).
+				\end{itemize}
 	
-	V rámci validace repozitáře se ověřují zejména tyto podmínky:
-	\begin{itemize}
-		\item jedinečnost identifikátorů soutěží,
-		\item návaznost každého vystoupení na existující soutěž,
-		\item absence duplicitních vystoupení v harmonogramu,
-		\item existence alespoň jednoho vystoupení pro každou evidovanou soutěž,
-		\item soulad mezi očekávaným počtem vystoupení soutěže a skutečným počtem v harmonogramu,
-		\item neprázdnost klíčových datových množin (soutěže, vystoupení, účastníci, porota).
-	\end{itemize}
+				Nálezy z těchto kontrol se ukládají do společné diagnostiky. Podle dopadu jsou vedeny jako chyby nebo varování. Chyby obvykle blokují pokračování analýzy, zatímco varování na problém upozorňují, ale samy o sobě běh zastavit nemusí.
 	
-	Nálezy z těchto kontrol se ukládají do společné diagnostiky. Podle dopadu jsou vedeny jako chyby nebo varování. Chyby obvykle blokují pokračování analýzy, zatímco varování na problém upozorňují, ale samy o sobě běh zastavit nemusí.
+				Výsledná diagnostika z validace vstupu i repozitáře je následně předána do politiky připravenosti dat k analýze, která rozhoduje o pokračování zpracování.
 	
-	Výsledná diagnostika z validace vstupu i repozitáře je následně předána do politiky připravenosti dat k analýze, která rozhoduje o pokračování zpracování.
+		\section{Politika připravenosti dat k analýze}
 	
-	\section{Politika připravenosti dat k analýze}
+			Po dokončení vstupní a doménové fáze systém vyhodnocuje, zda jsou data připravena pro pravidlovou analýzu. Tato část funguje jako rozhodovací brána mezi přípravou dat a analytickou vrstvou.
 	
-	Po dokončení vstupní a doménové fáze systém vyhodnocuje, zda jsou data připravena pro pravidlovou analýzu. Tato část funguje jako rozhodovací brána mezi přípravou dat a analytickou vrstvou.
+			Rozhodnutí vychází ze společné diagnostiky, která vzniká ve dvou místech: při čtení vstupních tabulek a při validaci centrálního repozitáře. Nejdříve se posuzují chyby schématu tabulek, tedy například situace, kdy mapování odkazuje na sloupec, který ve vstupním souboru neexistuje. Pokud je taková chyba nalezena, další zpracování se zastaví a analýza se nespustí.
 	
-	Rozhodnutí vychází ze společné diagnostiky, která vzniká ve dvou místech: při čtení vstupních tabulek a při validaci centrálního repozitáře. Nejdříve se posuzují chyby schématu tabulek, tedy například situace, kdy mapování odkazuje na sloupec, který ve vstupním souboru neexistuje. Pokud je taková chyba nalezena, další zpracování se zastaví a analýza se nespustí.
+			Dále se vyhodnocují chyby z validace repozitáře. Pokud diagnostika obsahuje blokující nálezy na úrovni interního modelu, systém také nepokračuje do pravidlové kontroly. Uživatel v obou případech dostane informaci, proč byl běh ukončen.
 	
-	Dále se vyhodnocují chyby z validace repozitáře. Pokud diagnostika obsahuje blokující nálezy na úrovni interního modelu, systém také nepokračuje do pravidlové kontroly. Uživatel v obou případech dostane informaci, proč byl běh ukončen.
+			Jestliže diagnostika neobsahuje blokující chyby, systém pokračuje pravidlovou analýzou harmonogramu. Diagnostická zjištění zůstávají dostupná i v tomto případě, aby měl uživatel při interpretaci výsledků plný kontext.
 	
-	Jestliže diagnostika neobsahuje blokující chyby, systém pokračuje pravidlovou analýzou harmonogramu. Diagnostická zjištění zůstávají dostupná i v tomto případě, aby měl uživatel při interpretaci výsledků plný kontext.
+			Návrh politiky je záměrně oddělen od ostatních částí pipeline. Díky tomu lze pravidla rozhodování upravovat bez zásahu do vstupní vrstvy nebo do analytického modulu, což usnadňuje další rozvoj systému i přizpůsobení praxi.
 	
-	Návrh politiky je záměrně oddělen od ostatních částí pipeline. Díky tomu lze pravidla rozhodování upravovat bez zásahu do vstupní vrstvy nebo do analytického modulu, což usnadňuje další rozvoj systému i přizpůsobení praxi.
+		\section{Návrh pravidlové analytické vrstvy}
 	
-	\section{Návrh pravidlové analytické vrstvy}
+			\subsection{Typy kontrolních pravidel}
+				Pravidlová vrstva provádí kontrolu harmonogramu nad interním časovým modelem soutěže. Pravidla jsou rozdělena podle typu konfliktu, který detekují.
 	
-	\subsection{Typy kontrolních pravidel}
-	Pravidlová vrstva provádí kontrolu harmonogramu nad interním časovým modelem soutěže. Pravidla jsou rozdělena podle typu konfliktu, který detekují.
+				\begin{itemize}
+					\item \textbf{Časové kolize} -- kontrola, že jedna osoba není přiřazena ke dvěma 	překrývajícím se vystoupením ve stejném čase.
+					\item \textbf{Minimální rozestupy} -- kontrola minimálního času na odpočinek a převlečení u soutěžících a minimálních odstupů mezi bloky u poroty.
+					\item \textbf{Maximální intervaly} -- kontrola, že čekání mezi vystoupeními nepřesahuje přijatelnou hranici.
+				\end{itemize}
 	
-	\begin{itemize}
-		\item \textbf{Časové kolize} -- kontrola, že jedna osoba není přiřazena ke dvěma překrývajícím se vystoupením ve stejném čase.
-		\item \textbf{Minimální rozestupy} -- kontrola minimálního času na odpočinek a převlečení u soutěžících a minimálních odstupů mezi bloky u poroty.
-		\item \textbf{Maximální intervaly} -- kontrola, že čekání mezi vystoupeními nepřesahuje přijatelnou hranici.
-	\end{itemize}
+				Toto členění přímo navazuje na omezení definovaná v analytické části práce.
 	
-	Toto členění přímo navazuje na omezení definovaná v analytické části práce.
+			\subsection{Parametrizace pravidel a klasifikace porušení}
+				Pravidlová vrstva je navržena tak, aby její chování bylo řízeno konfigurací, nikoli pevně zadanými hodnotami v kódu. Díky tomu lze pravidla přizpůsobit konkrétní soutěži bez zásahu do implementace.
 	
-	\subsection{Parametrizace pravidel a klasifikace porušení}
-	Pravidlová vrstva je navržena tak, aby její chování bylo řízeno konfigurací, nikoli pevně zadanými hodnotami v kódu. Díky tomu lze pravidla přizpůsobit konkrétní soutěži bez zásahu do implementace.
+				Konfigurace umožňuje u jednotlivých pravidel zejména:
+				\begin{itemize}
+					\item pravidlo zapnout nebo vypnout,
+					\item nastavit parametry kontrolních podmínek,
+					\item omezit pravidlo jen na vybrané disciplíny,
+					\item definovat hraniční hodnoty pro klasifikaci porušení.
+				\end{itemize}
 	
-	Konfigurace umožňuje u jednotlivých pravidel zejména:
-	\begin{itemize}
-		\item pravidlo zapnout nebo vypnout,
-		\item nastavit parametry kontrolních podmínek,
-		\item omezit pravidlo jen na vybrané disciplíny,
-		\item definovat hraniční hodnoty pro klasifikaci porušení.
-	\end{itemize}
+				Typickým příkladem je pravidlo minimálního času na převlečení. V konfiguraci lze určit, pro které disciplíny se má pravidlo použít, jaká minimální doba je požadována a jak se podle velikosti odchylky určí závažnost porušení.
 	
-	Typickým příkladem je pravidlo minimálního času na převlečení. V konfiguraci lze určit, pro které disciplíny se má pravidlo použít, jaká minimální doba je požadována a jak se podle velikosti odchylky určí závažnost porušení.
+				Tento přístup umožňuje použít stejnou analytickou logiku na různých akcích a měnit pouze konfigurační hodnoty. Výstup analýzy pak obsahuje porušení s jednotně přiřazenou závažností podle aktuálně platné konfigurace.
 	
-	Tento přístup umožňuje použít stejnou analytickou logiku na různých akcích a měnit pouze konfigurační hodnoty. Výstup analýzy pak obsahuje porušení s jednotně přiřazenou závažností podle aktuálně platné konfigurace.
+		\section{Návrh uživatelského workflow a výstupů}
 	
-	\section{Návrh uživatelského workflow a výstupů}
+			\subsection{Uživatelské workflow}
+				Workflow je navrženo jako jedno řízené spuštění. Uživatel vybere vstupní tabulky, nastaví mapování sloupců a spustí celý proces jedním hlavním příkazem.
 	
-	\subsection{Uživatelské workflow}
-	Workflow je navrženo jako jedno řízené spuštění. Uživatel vybere vstupní tabulky, nastaví mapování sloupců a spustí celý proces jedním hlavním příkazem.
+				Další kroky probíhají interně bez nutnosti ručního zásahu mezi jednotlivými fázemi. Systém postupně načte data, provede průběžné validace, sestaví interní model, vyhodnotí připravenost dat a podle výsledku buď spustí pravidlovou analýzu, nebo běh ukončí s vysvětlením důvodu.
 	
-	Další kroky probíhají interně bez nutnosti ručního zásahu mezi jednotlivými fázemi. Systém postupně načte data, provede průběžné validace, sestaví interní model, vyhodnotí připravenost dat a podle výsledku buď spustí pravidlovou analýzu, nebo běh ukončí s vysvětlením důvodu.
+				Tento způsob práce snižuje riziko chyb při obsluze a odpovídá reálné praxi, kde je potřeba opakovaně kontrolovat harmonogram v krátkém čase.
 	
-	Tento způsob práce snižuje riziko chyb při obsluze a odpovídá reálné praxi, kde je potřeba opakovaně kontrolovat harmonogram v krátkém čase.
+			\subsection{Návrh prezentace výsledků}
+				Výstup běhu má dvě základní podoby. Pokud data projdou až do analytické části, uživatel dostane výsledky pravidlové kontroly harmonogramu. Pokud je běh ukončen dříve v politice připravenosti, systém zobrazí důvody, proč analýza nebyla provedena.
 	
-	\subsection{Návrh prezentace výsledků}
-	Výstup běhu má dvě základní podoby. Pokud data projdou až do analytické části, uživatel dostane výsledky pravidlové kontroly harmonogramu. Pokud je běh ukončen dříve v politice připravenosti, systém zobrazí důvody, proč analýza nebyla provedena.
+				Při úspěšném průchodu analýzou jsou výsledky prezentovány dvěma způsoby: jako přehled porušení a současně jako zvýraznění konfliktů v harmonogramu. První forma poskytuje souhrn, druhá forma dává kontext pro konkrétní úpravy.
 	
-	Při úspěšném průchodu analýzou jsou výsledky prezentovány dvěma způsoby: jako přehled porušení a současně jako zvýraznění konfliktů v harmonogramu. První forma poskytuje souhrn, druhá forma dává kontext pro konkrétní úpravy.
+			\subsection{Podpora opakované práce}
+				Návrh počítá s tím, že vstupní data se během přípravy soutěže opakovaně mění. Uživatel proto musí mít možnost spouštět celý proces nad aktualizovanými soubory bez zbytečného nastavování od začátku.
 	
-	\subsection{Podpora opakované práce}
-	Návrh počítá s tím, že vstupní data se během přípravy soutěže opakovaně mění. Uživatel proto musí mít možnost spouštět celý proces nad aktualizovanými soubory bez zbytečného nastavování od začátku.
+				Součástí workflow je zachování pracovního kontextu mezi běhy, zejména znovupoužití již nastaveného mapování. Tím se zkracuje čas potřebný pro další kontrolu a podporuje se iterativní práce vedoucího soutěže.
 	
-	Součástí workflow je zachování pracovního kontextu mezi běhy, zejména znovupoužití již nastaveného mapování. Tím se zkracuje čas potřebný pro další kontrolu a podporuje se iterativní práce vedoucího soutěže.
+		\section{Shrnutí návrhu}
+			Navržené řešení je koncipováno jako navazující proces od načtení vstupních tabulek po prezentaci výsledků pravidlové kontroly harmonogramu. Klíčovým principem je oddělení bezpečného čtení a průběžné diagnostiky dat od rozhodnutí o připravenosti a od samotné analytické kontroly.
 	
-	\section{Shrnutí návrhu}
-	Navržené řešení je koncipováno jako navazující proces od načtení vstupních tabulek po prezentaci výsledků pravidlové kontroly harmonogramu. Klíčovým principem je oddělení bezpečného čtení a průběžné diagnostiky dat od rozhodnutí o připravenosti a od samotné analytické kontroly.
+			Datové jádro systému tvoří doménový model a centrální repozitář, nad kterým je provedena pravidlová analýza. Politika připravenosti dat zajišťuje, že analýza probíhá pouze nad daty, která splňují požadovanou úroveň kvality.
 	
-	Datové jádro systému tvoří doménový model a centrální repozitář, nad kterým je provedena pravidlová analýza. Politika připravenosti dat zajišťuje, že analýza probíhá pouze nad daty, která splňují požadovanou úroveň kvality.
-	
-	Návrh současně odpovídá praktickému způsobu použití aplikace: uživatel pracuje s jedním řízeným workflow, dostává srozumitelné výstupy a může rychle opakovat kontrolu po změnách ve vstupních tabulkách.
+			Návrh současně odpovídá praktickému způsobu použití aplikace: uživatel pracuje s jedním řízeným workflow, dostává srozumitelné výstupy a může rychle opakovat kontrolu po změnách ve vstupních tabulkách.
 
 	\chapter{Implementace}
 	
-	\section{Použité technologie a struktura řešení}
-	Aplikace je implementována v jazyce Python. Pro desktopové rozhraní je použita knihovna \texttt{PySide6}, pro práci s tabulkami \texttt{pandas} a pro konfiguraci pravidel formát YAML.
+		\section{Použité technologie a struktura řešení}
+			Aplikace je implementována v jazyce Python. Pro desktopové rozhraní je použita knihovna \texttt{PySide6}, pro práci s tabulkami \texttt{pandas} a pro konfiguraci pravidel formát YAML.
 	
-	Projekt je rozdělen do několika logických vrstev. Vrstva \texttt{presentation} obsahuje grafické rozhraní a řízení interakcí uživatele. Vrstva \texttt{application} obsahuje workflow, use-cases, politiky a synchronizační služby. Vrstva \texttt{ingestion} řeší načítání a parsování tabulek. Vrstva \texttt{domain} obsahuje doménový model, validaci repozitáře a pravidlovou analýzu. Vrstva \texttt{infrastructure} zajišťuje konkrétní technické adaptéry, například čtení Excelu, práci se session a generování HTML reportu.
+			Projekt je rozdělen do několika logických vrstev. Vrstva \texttt{presentation} obsahuje grafické rozhraní a řízení interakcí uživatele. Vrstva \texttt{application} obsahuje workflow, use-cases, politiky a synchronizační služby. Vrstva \texttt{ingestion} řeší načítání a parsování tabulek. Vrstva \texttt{domain} obsahuje doménový model, validaci repozitáře a pravidlovou analýzu. Vrstva \texttt{infrastructure} zajišťuje konkrétní technické adaptéry, například čtení Excelu, práci se session a generování HTML reportu.
 	
-	Sestavení závislostí probíhá centrálně v modulu \texttt{bootstrap.py}. Tento modul vytváří aplikační kontejner a propojuje jednotlivé služby do jednoho běhu.
+			Sestavení závislostí probíhá centrálně v modulu \texttt{bootstrap.py}. Tento modul vytváří aplikační kontejner a propojuje jednotlivé služby do jednoho běhu.
 	
-	\section{Implementace vstupní vrstvy}
-	
-	\subsection{Načtení tabulek a mapování sloupců}
-	Aplikace pracuje se čtyřmi pevně danými tabulkami: soutěže, soutěžící, porota a harmonogram. Definice těchto tabulek a mapovacích polí je centralizována v registru \texttt{tables.py} (\texttt{TableKey}, \texttt{TableSpec}, \texttt{TableMappingSchema}).
-	
-	Uživatel nastavuje mapování v dialogu \texttt{MappingDialog}. Dialog zobrazuje aktuální sloupce tabulky a mapovací pole podle typu tabulky. Povinná pole jsou kontrolována při potvrzení mapování.
-	
-	Validace mapování je implementována ve službě \texttt{MappingValidationService}. Kontroluje se zejména:
-	\begin{itemize}
-		\item vyplnění povinných mapovacích polí,
-		\item existence vybraných sloupců v aktuální tabulce,
-		\item pravidla pro přiřazovací sloupce (prefix nebo číselné hlavičky),
-		\item specifická podmínka pro porotu (buď \texttt{fullname}, nebo \texttt{name}+\texttt{surname}).
-	\end{itemize}
-	
-	\subsection{Bezpečné čtení a průběžná diagnostika}
-	Samotné načítání tabulek je implementováno ve službě \texttt{TableIngestionService}. Pro každou tabulku probíhá stejný základní postup:
-	\begin{enumerate}
-		\item kontrola cesty k souboru,
-		\item kontrola existence listu,
-		\item načtení DataFrame přes \texttt{PandasExcelReader},
-		\item kontrola signatury sloupců,
-		\item validace mapování,
-		\item parsování řádků tabulkovým parserem.
-	\end{enumerate}
-	
-	Diagnostika je ukládána jako \texttt{IngestionIssue} s úrovní \texttt{ERROR}/\texttt{WARNING}. Kritické chyby schématu (např. neexistující sloupec v mapování) zastaví parsování dané tabulky, ale neukončí celý workflow okamžitě.
-	
-	Řádkové chyby jsou evidovány průběžně parserem. Například parser harmonogramu (\texttt{ScheduleTableParser}) přeskočí řádek bez ID soutěže jako varování a u neplatných hodnot zapíše řádkovou chybu. Časové hodnoty a délky jsou parsovány tolerantně, včetně fallbacku přes \texttt{pandas.to\_datetime} a \texttt{pandas.to\_timedelta}.
-	
-	\subsection{Parsování přiřazovacích sloupců}
-	U soutěžících a poroty je použit společný základ \texttt{AssignmentTableParserBase}. Tato část řeší výběr sloupců přiřazení buď podle prefixu, nebo podle číselných hlaviček.
-	
-	Výběr sloupců provádí \texttt{AssignmentColumnsSelector}. Pokud není nalezena použitelná sada sloupců, parser vrátí diagnostickou chybu \texttt{ASSIGNMENT\_COLUMNS\_NOT\_FOUND} a tabulka je vyhodnocena jako nevalidní pro další krok.
-	
-	\section{Implementace správy session a stavů tabulek}
-	
-	\subsection{Datový model session}
-	Běhový stav aplikace je uložen ve struktuře \texttt{AppSession}. Pro každou tabulku je veden \texttt{TableRuntimeState}, který obsahuje cestu k souboru, list, mapování, signaturu sloupců, status a běhová data.
-	
-	Status tabulky je reprezentován výčtem \texttt{TableStatus} (např. \texttt{EMPTY}, \texttt{READY}, \texttt{MAPPING\_STALE}, \texttt{BROKEN\_SHEET}).
-	
-	\subsection{Persistování session}
-	Session je ukládána přes \texttt{JsonSessionStore} do souboru \texttt{session.json} (s verzí session). Ukládání probíhá atomicky přes dočasný soubor, aby se minimalizovalo riziko poškození dat při zápisu.
-	
-	Při startu aplikace se volá \texttt{RestoreSessionUseCase}, který obnoví uložené nastavení a dopočítá výchozí statusy. Následně \texttt{RevalidateSessionUseCase} provede opětovné ověření vstupů proti aktuálním souborům.
-	
-	\subsection{Synchronizace stavů po ingesti}
-	Po načtení dat synchronizuje statusy služba \texttt{SessionStatusSyncService}. Ta převádí schématické chyby/varování na běhové stavy přes \texttt{TableStatusTransitionService}.
-	
-	Typické scénáře:
-	\begin{itemize}
-		\item neexistující soubor $\rightarrow$ \texttt{BROKEN\_PATH},
-		\item neexistující list $\rightarrow$ \texttt{BROKEN\_SHEET},
-		\item změna signatury sloupců $\rightarrow$ \texttt{MAPPING\_STALE},
-		\item bez schématických chyb a s mapováním $\rightarrow$ \texttt{READY}.
-	\end{itemize}
-	
-	\section{Implementace doménového modelu a repozitáře}
-	
-	\subsection{Doménové entity}
-	Doménový model je implementován třídami \texttt{Competition}, \texttt{Performance}, \texttt{Competitor}, \texttt{JuryMember}. Každá entita provádí základní validaci v metodě \texttt{\_\_post\_init\_\_} (např. kladné ID, neprázdná jména, konzistence délky a času výkonu).
-	
-	\subsection{Centrální repozitář}
-	Po parsování jsou entity ukládány do \texttt{ScheduleRepository}. Repozitář drží:
-	\begin{itemize}
-		\item soutěže podle ID,
-		\item vystoupení podle ID soutěže,
-		\item množinu soutěžících,
-		\item množinu členů poroty.
-	\end{itemize}
-	
-	Dále poskytuje pomocné dotazy, například seznam vystoupení člověka (\texttt{list\_assignments\_of\_human}) seřazený podle času.
-	
-	\subsection{Validace repozitáře}
-	Sestavení repozitáře zajišťuje \texttt{ScheduleRepositoryBuilder}. Hned po sestavení se spouští \texttt{ScheduleRepositoryValidator}, který běží deterministickou pipeline kontrol.
-	
-	Validace zahrnuje mimo jiné:
-	\begin{itemize}
-		\item neznámé soutěže ve vystoupeních,
-		\item duplicitní vystoupení,
-		\item odkazy soutěžících/poroty na neexistující soutěže,
-		\item soutěže bez vystoupení,
-		\item prázdné klíčové množiny (např. žádné soutěže nebo žádná vystoupení),
-		\item nesoulad počtu kol (\texttt{amount\_of\_rounds} vs. harmonogram).
-	\end{itemize}
-	
-	Výstupem je \texttt{ScheduleRepositoryValidationReport} s rozdělením na chyby a varování.
-	
-	\section{Implementace politiky připravenosti dat}
-	Rozhodnutí o spuštění analýzy je implementováno třídou \texttt{AnalyzeReadinessPolicy}. Politika vyhodnocuje společně:
-	\begin{itemize}
-		\item chyby schématu ze vstupní ingest fáze,
-		\item chyby validace repozitáře,
-		\item varování (neblokující důvody).
-	\end{itemize}
-	
-	V aktuální implementaci platí:
-	\begin{itemize}
-		\item pokud existují schématické chyby, analýza je zablokována,
-		\item pokud existují chyby repozitáře, analýza je zablokována,
-		\item varování analýzu neblokují, ale jsou součástí reportu.
-	\end{itemize}
-	
-	Politika vrací \texttt{AnalyzeReadinessResult} s rozhodnutím \texttt{ALLOW}/\texttt{BLOCK} a seznamem důvodů.
-	
-	\section{Implementace pravidlové analytické vrstvy}
-	
-	\subsection{Konfigurace pravidel}
-	Konfigurace pravidel je načítána z YAML souboru přes \texttt{YamlRulesConfigLoader}. Pokud soubor neexistuje, vytvoří se výchozí konfigurace.
-	
-	Každé pravidlo má samostatnou sekci. Konfigurace umožňuje:
-	\begin{itemize}
-		\item zapnutí/vypnutí pravidla (\texttt{enabled}),
-		\item nastavení prahů závažnosti (\texttt{thresholds}),
-		\item doplňkové parametry podle typu pravidla (např. \texttt{rest\_time}, \texttt{disciplines}, \texttt{min\_gap\_minutes}).
-	\end{itemize}
-	
-	\subsection{Implementovaná pravidla}
-	Pravidla jsou implementována jako samostatné třídy nad společným základem \texttt{ARule}. V implementaci jsou použita pravidla:
-	\begin{itemize}
-		\item \texttt{SimultaneousDancingRule},
-		\item \texttt{SimultaneousJudgingRule},
-		\item \texttt{MaxContinuousDancingRule},
-		\item \texttt{MaxContinuousJudgingRule},
-		\item \texttt{CostumeChangeTimeRule},
-		\item \texttt{MaxGapBetweenPerformancesRule}.
-	\end{itemize}
-	
-	Společné části logiky (např. bloky souvislé činnosti, detekce překryvů) jsou vytaženy do abstraktních pomocných tříd \texttt{ContinuousActivityRule} a \texttt{SimultaneousRule}.
-	
-	\subsection{Inference engine a výsledky analýzy}
-	Pravidla jsou spouštěna třídou \texttt{InferenceEngine}. Engine postupně vyhodnotí všechna aktivní pravidla, sloučí porušení, deduplikuje je a připraví agregace podle závažnosti a podle pravidla.
-	
-	Výstupem je \texttt{ScheduleAnalysisResult}. Jednotlivé nálezy jsou reprezentovány entitou \texttt{Violation}, která obsahuje typ pravidla, závažnost, popis, kontext a zdrojové řádky harmonogramu.
-	
-	\section{Implementace workflow analýzy}
-	Celý běh je řízen službou \texttt{AnalyzeWorkflowService}. Workflow má tento průběh:
-	\begin{enumerate}
-		\item \texttt{PrepareDataUseCase} (ingest + diagnostika + synchronizace stavů),
-		\item \texttt{BuildRepositoryUseCase} (sestavení repozitáře + validace),
-		\item vyhodnocení \texttt{AnalyzeReadinessPolicy},
-		\item při povolení: \texttt{RunScheduleAnalysisUseCase},
-		\item vytvoření \texttt{AnalyzeWorkflowResult}.
-	\end{enumerate}
-	
-	Workflow vrací tři možné stavy:
-	\begin{itemize}
-		\item \texttt{SUCCESS},
-		\item \texttt{BLOCKED},
-		\item \texttt{FAILED}.
-	\end{itemize}
-	
-	Součástí výsledku je vždy \texttt{DataQualityReport}, který nese diagnostiku kvality dat a důvody readiness rozhodnutí.
-	
-	\section{Implementace uživatelského rozhraní}
-	
-	\subsection{Hlavní okno a řízení akcí}
-	Hlavní okno (\texttt{MainWindow}) vytváří panely pro čtyři tabulky, tlačítko spuštění analýzy a stavový panel výsledku.
-	
-	UI komunikuje s aplikační vrstvou přes \texttt{UiController}. Controller zapouzdřuje session operace, preflight validaci mapování, spuštění workflow i přístup k posledním výsledkům analýzy.
-	
-	\subsection{Stavy tabulek v UI}
-	Komponenta \texttt{TableLoadPanel} zobrazuje stav každé tabulky barevným indikátorem a akcemi podle aktuálního stavu.
-	
-	Panel podporuje:
-	\begin{itemize}
-		\item výběr souboru a listu,
-		\item otevření mapování,
-		\item automatické použití uloženého mapování, pokud je stále validní,
-		\item přechod do stavu \texttt{READY} po úspěšném mapování.
-	\end{itemize}
-	
-	\subsection{Prezentace výsledků analýzy}
-	Komponenta \texttt{AnalysisStatusPanel} rozlišuje stavy úspěch, blokace a selhání. Podle stavu zpřístupňuje tlačítka pro:
-	\begin{itemize}
-		\item report kvality dat,
-		\item otevření HTML reportu,
-		\item přehled narušení v harmonogramu.
-	\end{itemize}
-	
-	Detailní kvalita dat je zobrazena v dialogu \texttt{DataQualityReportDialog} se záložkami pro readiness důvody, chyby repozitáře, řádkové problémy a schématické problémy.
-	
-	\subsection{Vizualizace porušení v harmonogramu}
-	Dialog \texttt{ScheduleViewDialog} zobrazuje harmonogram jako tabulku a mapuje na něj nalezená porušení. Řádky jsou barevně odlišeny podle nejvyšší závažnosti narušení.
-	
-	Po kliknutí na řádek se zobrazí panel s konkrétními porušeními, včetně detailu pravidla a možnosti zvýraznit přesné řádky spojené s vybraným narušením.
-	
-	\section{Generování reportů}
-	Pro externí sdílení výsledků je implementováno generování HTML reportu. Výstup vytváří \texttt{HtmlExplanationReportWriter} pomocí \texttt{ExplanationGenerator}.
-	
-	Report obsahuje souhrn počtu porušení podle závažnosti a detailní sekce podle pravidel. U každého porušení jsou uvedeny relevantní časové údaje, kontext a řádky harmonogramu.
-	
-	\section{Shrnutí implementace}
-	Implementace realizuje kompletní pipeline od načtení Excel tabulek až po pravidlovou analýzu a prezentaci výsledků. Důraz je kladen na odolné zpracování vstupů, průběžnou diagnostiku, oddělenou politiku připravenosti dat a konfigurovatelnou pravidlovou vrstvu.
-	
-	Výsledná aplikace podporuje praktický způsob práce vedoucího soutěže: opakované běhy nad měnícími se daty, znovupoužití mapování a srozumitelné výstupy pro rychlou korekci harmonogramu.
+		\section{Implementace vstupní vrstvy}
 		
-		
+			\subsection{Načtení tabulek a mapování sloupců}
+				Aplikace pracuje se sadou předdefinovaných vstupních tabulek: soutěže, soutěžící, harmonogram a případně porota. Definice těchto tabulek a mapovacích polí je centralizována v registru \texttt{tables.py} (\texttt{TableKey}, \texttt{TableSpec}, \texttt{TableMappingSchema}).
 	
-	%\chapter{Implementace aplikace}	
-		%\section{Использованные технологии}
-			%В качестве языка разработки приложения был выбран питон версии 3.10. Питон был оценен в качестве лучшего кандидата, потому что он представляет собой баланс между тем, как легко на нем пишутся приложения и тем, как легко потом эти приложения дистрибутировать. В качестве сравнения возьмем java: для того, чтобы пользователь запустил приложение, напсианное на джаве, ему нужно будет отдельно утсановить ее, а затем пользоваться файлами для запуска в формате .bat или подобными. Напротив язык С позволяет создавать .exe файлы напрямую, но писать на нем такое приложение было бы крайне сложно как минимум из за специфики языка, но также из за ограниченного выбора библиотек. Версия питона 3.10 была выбрана из за простоты написания на нем кода, из за доступной дистрибуции приложения с различными варинтами, из за широкого спектра библиотек для любых целей, из за моего предшествующего опыта работы с ним. Считается, что сильнейшей невыгодой работы питона является его медленная скорость, но в нашем случае это допустимо, так как программа будет работать с относительно небольшими объемамми данных. 
+				Uživatel nastavuje mapování v dialogu \texttt{MappingDialog}. Dialog zobrazuje aktuální sloupce tabulky a mapovací pole podle typu tabulky. Povinná pole jsou kontrolována při potvrzení mapování.
+	
+				Validace mapování je implementována ve službě \texttt{MappingValidationService}. Kontroluje se zejména:
+				\begin{itemize}
+					\item vyplnění povinných mapovacích polí,
+					\item existence vybraných sloupců v aktuální tabulce,
+					\item pravidla pro přiřazovací sloupce (prefix nebo číselné hlavičky),
+					\item specifická podmínka pro porotu (buď \texttt{fullname}, nebo \texttt{name}+\texttt{surname}).
+				\end{itemize}
+	
+			\subsection{Bezpečné čtení a průběžná diagnostika}
+				Samotné načítání tabulek je implementováno ve službě \texttt{TableIngestionService}. Pro každou tabulku probíhá stejný základní postup:
+				\begin{enumerate}
+					\item kontrola cesty k souboru,
+					\item kontrola existence listu,
+					\item načtení DataFrame přes \texttt{PandasExcelReader},
+					\item kontrola signatury sloupců,
+					\item validace mapování,
+					\item parsování řádků tabulkovým parserem.
+				\end{enumerate}
+				
+				Důležitým technickým detailem je samotný způsob načítání souborů ve třídě \texttt{PandasExcelReader}. Pro čtení je využit kontextový manažer (\texttt{with ExcelFile(...) as xls}), který zajistí okamžité uvolnění souboru ihned po načtení dat do paměti. Bez tohoto přístupu by aplikace tabulku po celou dobu svého běhu zablokovala, což by uživateli znemožnilo soubor paralelně upravovat v Excelu. Uvolnění souboru je tak klíčové pro podporu iterativního způsobu práce organizátora.				
+	
+				Diagnostika je ukládána jako \texttt{IngestionIssue} s úrovní \texttt{ERROR}/\texttt{WARNING}. Kritické chyby schématu (např. neexistující sloupec v mapování) zastaví parsování dané tabulky, ale neukončí celý workflow okamžitě.
+	
+				Řádkové chyby jsou evidovány průběžně parserem. Například parser harmonogramu (\texttt{ScheduleTableParser}) přeskočí řádek bez ID soutěže jako varování a u neplatných hodnot zapíše řádkovou chybu. Časové hodnoty a délky jsou parsovány tolerantně, včetně fallbacku přes \texttt{pandas.to\_datetime} a \texttt{pandas.to\_timedelta}.
+	
+			\subsection{Parsování přiřazovacích sloupců}
+				U soutěžících a poroty je použit společný základ \texttt{AssignmentTableParserBase}. Tato část řeší výběr sloupců přiřazení buď podle prefixu, nebo podle číselných hlaviček.
+	
+				Výběr sloupců provádí \texttt{AssignmentColumnsSelector}. Pokud není nalezena použitelná sada sloupců, parser vrátí diagnostickou chybu \texttt{ASSIGNMENT\_COLUMNS\_NOT\_FOUND} a tabulka je vyhodnocena jako nevalidní pro další krok.
+	
+		\section{Implementace správy session a stavů tabulek}
+	
+			\subsection{Datový model session}
+				Běhový stav aplikace je uložen ve struktuře \texttt{AppSession}. Pro každou tabulku je veden \texttt{TableRuntimeState}, který obsahuje cestu k souboru, list, mapování, signaturu sloupců, status a běhová data.
+	
+				Status tabulky je reprezentován výčtem \texttt{TableStatus} (např. \texttt{EMPTY}, \texttt{READY}, \texttt{MAPPING\_STALE}, \texttt{BROKEN\_SHEET}).
+	
+			\subsection{Persistování session}
+				Session je ukládána přes \texttt{JsonSessionStore} do souboru \texttt{session.json} (s verzí session). Ukládání probíhá atomicky přes dočasný soubor, aby se minimalizovalo riziko poškození dat při zápisu.
+	
+				Při startu aplikace se volá \texttt{RestoreSessionUseCase}, který obnoví uložené nastavení a dopočítá výchozí statusy. Následně \texttt{RevalidateSessionUseCase} provede opětovné ověření vstupů proti aktuálním souborům.
+	
+			\subsection{Synchronizace stavů po ingesti}
+				Po načtení dat synchronizuje statusy služba \texttt{SessionStatusSyncService}. Ta převádí schématické chyby/varování na běhové stavy přes \texttt{TableStatusTransitionService}.
+	
+				Typické scénáře:
+				\begin{itemize}
+					\item neexistující soubor $\rightarrow$ \texttt{BROKEN\_PATH},
+					\item neexistující list $\rightarrow$ \texttt{BROKEN\_SHEET},
+					\item změna signatury sloupců $\rightarrow$ \texttt{MAPPING\_STALE},
+					\item bez schématických chyb a s mapováním $\rightarrow$ \texttt{READY}.
+				\end{itemize}
+	
+		\section{Implementace doménového modelu a repozitáře}
+	
+			\subsection{Doménové entity}
+				Doménový model je implementován třídami \texttt{Competition}, \texttt{Performance}, \texttt{Competitor} a \texttt{JuryMember}. Každá entita provádí základní validaci svých dat v metodě \texttt{\_\_post\_init\_\_} (např. kladné ID, neprázdná jména, konzistence délky a času výkonu).
 			
-			%Весь проект был создан в IDE Pycharm, с использованием тула black для автоматического форматирования кода.
+				Třídy \texttt{Competitor} a \texttt{JuryMember} sdílejí společnou charakteristiku, protože obě reprezentují osoby, které jsou přiřazeny ke konkrétním soutěžím. Z tohoto důvodu obě dědí z abstraktní rodičovské třídy \texttt{Human}. Tento společný předek uchovává atribut \texttt{competition\_ids} (množinu identifikátorů soutěží) a rovnou zajišťuje i jeho validaci. Díky tomuto objektově orientovanému návrhu může repozitář a analytická vrstva používat jednotné metody pro práci s lidmi, nezávisle na tom, zda jde o soutěžícího nebo člena poroty.
 			
-			%В ходе разработки был активно использован github для контроля версий, что позволяло вести паралелльную разработку с ПК и с ноутбука.
-		%\section{Интерфейс}
-			%В качестве библиотеки для интерфейса был выбран QT, так как он отвечает современным требованиям по тому, как должна выглядеть программа. Стандартные библиотеки питона напротив выглядят ужасно и было принято решение не пользоваться ими.
+				Všechny tyto třídy jsou implementovány v jazyce Python pomocí dekorátoru \texttt{@dataclass} s parametry \texttt{frozen=True} a \texttt{slots=True}. Nastavení \texttt{frozen} zajišťuje neměnnost objektů po jejich vytvoření (imutabilitu). Tím se předchází nechtěným změnám dat během analýzy. Parametr \texttt{slots=True} představuje vysokoúrovňovou obálku nad mechanismem \texttt{\_\_slots\_\_}. Ten rezervuje pevně daný prostor pro atributy instancí a zabraňuje automatickému vytváření slovníku \texttt{\_\_dict\_\_}. Podle oficiální dokumentace Pythonu může použití \texttt{\_\_slots\_\_} výrazně snížit spotřebu paměti a zároveň významně zrychlit přístup k atributům objektů \cite{python_slots}. Tato optimalizace je výhodná zejména při zpracování většího množství dat.
+	
+			\subsection{Centrální repozitář}
+				Po úspěšném parsování tabulek jsou vytvořené entity ukládány do objektu třídy \texttt{ScheduleRepository}. Tento repozitář slouží jako hlavní datový zdroj pro následnou analýzu a chrání svůj vnitřní stav pomocí zapouzdření. Data jsou uložena v privátních atributech a ven jsou vystavena pouze ke čtení přes příslušné vlastnosti (properties).
 			
-			%Для связи интерфейса и бэка приложения был создан контроллер интерфейса, это позволяет отделить логику от ui, не захламляя код интерфейса бизнес логикой. в контроллере инициализируется контейнер приложения, в котором лежат различные сервисы и юз кейсы. Также отсюда берет начало сессия приложения.
+				Pro ukládání entit využívá repozitář několik specifických datových struktur:
+				\begin{itemize}
+					\item \textbf{Soutěže} jsou uloženy ve slovníku (\texttt{dict}), kde klíčem je ID soutěže. Zde je implementována kontrola proti vkládání duplicit: pokud je přidána soutěž s již existujícím ID, systém vyvolá výjimku \texttt{RepositoryBuildError}.
+					\item \textbf{Vystoupení} jsou ukládána pomocí struktury \texttt{defaultdict(list)}. Ta automaticky seskupuje jednotlivá vystoupení do seznamů podle ID příslušné soutěže, což zjednodušuje kód při vkládání.
+					\item \textbf{Účastníci a porotci} jsou ukládáni do množin (\texttt{set}), což přirozeně zabraňuje výskytu duplicitních objektů stejného člověka.
+				\end{itemize}
 			
-			%Интерфейс приложения представляет собой несколько окон:
+				Využití slovníků pro soutěže a vystoupení zaručuje vyhledávání položek v konstantním čase, což je nezbytné pro rychlé provádění kontrolních pravidel nad celým harmonogramem.
 			
-			%Первое, главное окно встречает пользователя сразу после запуска. С помощью него пользователь вызывает другие окна приложения, то есть этой некий путеводный камень (дурацкая формулировка, переделать, но смысл оставить), а также вызывает запуск анализа.
-			%Здесь еще рассказать про все панели
+				Kromě uchovávání dat poskytuje repozitář metody pro pohodlné dotazování. Pravidla nejčastěji využívají metodu \texttt{list\_\allowbreak{}assignments\_\allowbreak{}of\_\allowbreak{}human}, která přijímá libovolnou osobu (soutěžícího nebo porotce). Metoda projde všechna ID soutěží, ke kterým je osoba přiřazena, vyhledá příslušná vystoupení a sloučí je do jednoho seznamu. Ten následně vrátí chronologicky seřazený podle času začátku (\texttt{start\_time}). Analytická pravidla tak dostávají data přesně v té podobě, kterou potřebují pro kontrolu časových návazností a překryvů.
+	
+			\subsection{Validace repozitáře}
+				Sestavení repozitáře zajišťuje \texttt{ScheduleRepositoryBuilder}. Hned po sestavení se spouští \texttt{ScheduleRepositoryValidator}, který běží deterministickou pipeline kontrol.
+	
+				Validace zahrnuje mimo jiné:
+				\begin{itemize}
+					\item neznámé soutěže ve vystoupeních,
+					\item duplicitní vystoupení,
+					\item odkazy soutěžících/poroty na neexistující soutěže,
+					\item soutěže bez vystoupení,
+					\item prázdné klíčové množiny (např. žádné soutěže nebo žádná vystoupení),
+					\item nesoulad počtu kol (\texttt{amount\_of\_rounds} vs. harmonogram).
+				\end{itemize}
+	
+				Výstupem je \texttt{ScheduleRepositoryValidationReport} s rozdělením na chyby a varování.
+	
+		\section{Implementace politiky připravenosti dat}
+			Rozhodnutí o spuštění analýzy je implementováno třídou \texttt{AnalyzeReadinessPolicy}. Politika vyhodnocuje společně:
+			\begin{itemize}
+				\item chyby schématu ze vstupní ingest fáze,
+				\item chyby validace repozitáře,
+				\item varování (neblokující důvody).
+			\end{itemize}
+	
+			V aktuální implementaci platí:
+			\begin{itemize}
+				\item pokud existují schématické chyby, analýza je zablokována,
+				\item pokud existují chyby repozitáře, analýza je zablokována,
+				\item varování analýzu neblokují, ale jsou součástí reportu.
+			\end{itemize}
+	
+			Politika vrací \texttt{AnalyzeReadinessResult} s rozhodnutím \texttt{ALLOW}/\texttt{BLOCK} a seznamem důvodů.
+	
+		\section{Implementace pravidlové analytické vrstvy}
+	
+			\subsection{Konfigurace pravidel}
+				Konfigurace pravidel je načítána z YAML souboru přes \texttt{YamlRulesConfigLoader}. Pokud soubor neexistuje, vytvoří se výchozí konfigurace.
+	
+				Každé pravidlo má samostatnou sekci. Konfigurace umožňuje:
+				\begin{itemize}
+					\item zapnutí/vypnutí pravidla (\texttt{enabled}),
+					\item nastavení prahů závažnosti (\texttt{thresholds}),
+					\item doplňkové parametry podle typu pravidla (např. \texttt{rest\_time}, \texttt{disciplines}, \texttt{min\_gap\_minutes}).
+				\end{itemize}
+	
+			\subsection{Implementovaná pravidla}
+				Pravidla jsou implementována jako samostatné třídy nad společným základem \texttt{ARule}. V implementaci jsou použita pravidla:
+				\begin{itemize}
+					\item \texttt{SimultaneousDancingRule},
+					\item \texttt{SimultaneousJudgingRule},
+					\item \texttt{MaxContinuousDancingRule},
+					\item \texttt{MaxContinuousJudgingRule},
+					\item \texttt{CostumeChangeTimeRule},
+					\item \texttt{MaxGapBetweenPerformancesRule}.
+				\end{itemize}
+	
+				Společné části logiky (např. bloky souvislé činnosti, detekce překryvů) jsou vytaženy do abstraktních pomocných tříd \texttt{ContinuousActivityRule} a \texttt{SimultaneousRule}.
+	
+			\subsection{Inference engine a výsledky analýzy}
+				Pravidla jsou spouštěna třídou \texttt{InferenceEngine}. Engine postupně vyhodnotí všechna aktivní pravidla, sloučí porušení, deduplikuje je a připraví agregace podle závažnosti a podle pravidla.
+	
+				Výstupem je \texttt{ScheduleAnalysisResult}. Jednotlivé nálezy jsou reprezentovány entitou \texttt{Violation}, která obsahuje typ pravidla, závažnost, popis, kontext a zdrojové řádky harmonogramu.
+				
+				Navíc je návrh pravidel přizpůsoben tomu, že některé vstupní tabulky mohou být pouze volitelné. Pokud například není k dispozici tabulka poroty, pravidla závislá na datech o porotcích se sice spustí, ale vzhledem k prázdnému vstupu nevedou k nalezení žádných porušení. Tento přístup umožňuje zachovat jednotný průběh analýzy bez nutnosti speciálních režimů běhu aplikace.
+	
+		\section{Implementace workflow analýzy}
+			Celý běh je řízen službou \texttt{AnalyzeWorkflowService}. Workflow má tento průběh:
+			\begin{enumerate}
+				\item \texttt{PrepareDataUseCase} (ingest + diagnostika + synchronizace stavů),
+				\item \texttt{BuildRepositoryUseCase} (sestavení repozitáře + validace),
+				\item vyhodnocení \texttt{AnalyzeReadinessPolicy},
+				\item při povolení: \texttt{RunScheduleAnalysisUseCase},
+				\item vytvoření \texttt{AnalyzeWorkflowResult}.
+			\end{enumerate}
+	
+			Workflow vrací tři možné stavy:
+			\begin{itemize}
+				\item \texttt{SUCCESS},
+				\item \texttt{BLOCKED},
+				\item \texttt{FAILED}.
+			\end{itemize}
+	
+			Součástí výsledku je vždy \texttt{DataQualityReport}, který nese diagnostiku kvality dat a důvody readiness rozhodnutí.
+	
+		\section{Implementace uživatelského rozhraní}
+	
+			\subsection{Hlavní okno a řízení akcí}
+				Hlavní okno (\texttt{MainWindow}) vytváří panely pro čtyři tabulky, tlačítko spuštění analýzy a stavový panel výsledku.
+	
+				UI komunikuje s aplikační vrstvou přes \texttt{UiController}. Controller zapouzdřuje session operace, preflight validaci mapování, spuštění workflow i přístup k posledním výsledkům analýzy.
+	
+			\subsection{Stavy tabulek v UI}
+				Komponenta \texttt{TableLoadPanel} zobrazuje stav každé tabulky barevným indikátorem a akcemi podle aktuálního stavu.
+	
+				Panel podporuje:
+				\begin{itemize}
+					\item výběr souboru a listu,
+					\item otevření mapování,
+					\item automatické použití uloženého mapování, pokud je stále validní,
+					\item přechod do stavu \texttt{READY} po úspěšném mapování.
+					\item zrušení výběru tabulky a návrat do výchozího stavu.
+			\end{itemize}
+	
+			\subsection{Prezentace výsledků analýzy}
+				Komponenta \texttt{AnalysisStatusPanel} rozlišuje stavy úspěch, blokace a selhání. Podle stavu zpřístupňuje tlačítka pro:
+				\begin{itemize}
+					\item report kvality dat,
+					\item otevření HTML reportu,
+					\item přehled narušení v harmonogramu.
+				\end{itemize}
+	
+				Detailní kvalita dat je zobrazena v dialogu \texttt{DataQualityReportDialog} se záložkami pro readiness důvody, chyby repozitáře, řádkové problémy a schématické problémy.
+	
+			\subsection{Vizualizace porušení v harmonogramu}
+				Dialog \texttt{ScheduleViewDialog} zobrazuje harmonogram jako tabulku a mapuje na něj nalezená porušení. Řádky jsou barevně odlišeny podle nejvyšší závažnosti narušení.
+	
+				Po kliknutí na řádek se zobrazí panel s konkrétními porušeními, včetně detailu pravidla a možnosti zvýraznit přesné řádky spojené s vybraným narušením.
+	
+		\section{Generování reportů}
+			Pro externí sdílení výsledků je implementováno generování HTML reportu. Výstup vytváří \texttt{HtmlExplanationReportWriter} pomocí \texttt{ExplanationGenerator}.
+	
+			Report obsahuje souhrn počtu porušení podle závažnosti a detailní sekce podle pravidel. U každého porušení jsou uvedeny relevantní časové údaje, kontext a řádky harmonogramu.
 			
-			%Второе окно - это окно маппинга. В первом главном окне пользователь выбирает таблицу со своего диска а также лист таблицы, после этого пользователю будет предложено установить маппинг для каждого поля сущности. % вот здесь еще можно указать то, что все эти данные берутся из контракта таблиц но я хз
-			%Данные о таблицах и маппинге загружаются в сессию приложения
-			
-			%Третье окно, это окно качества данных, где отображается вся информация о найденных ошибка/предупреждениях во время считывания таблиц, их рядов, а также при составлении и валидации репозитория. Здесь же указано итоговое решение о разрешении или запрете проводить анализ системой правил. 
-			
-			%Четвертое окно это окно просмотра нарушений, наложенных на таблицу раписания, где каждое выявленное в ходе анализа нарушение накладывается на ряд таблицы, в котором нарушение было найдено. Данные берутся из спецаильного сервиса.
-			
-		%\section{Сессия}
-			%В сессии хранятся данные о всех таблицах, с которыми работает программа. У каждой таблицы есть свои состояния, например выбран файл, выбран лист, проведен маппинг, готово, или состояния, указывающие на ошибку. Сессия позволяет пользователю сохранять свой прогресс на файле. Это реализованно с помощью записи на диск файла в формате json, а затем чтения с диска после повторного запуска программы. Здесь важно подметить, что программа допускает, что таблицы могут меняться между запусками программы и поэтмоу после повторного запуска будет проведена валидация таблиц. Данные сессии хранятся в рабочей директории программы, папка и файл автоматически создаются после первого запуска.
-			
-		%\section{Чтение таблиц}
-			%После того как в сессии будут загружены все четыре таблицы, контроллер передаст интерфейсу разрешение на запуск анализа и кнопка зпустить анализ будет доступна для пользователя.
-			%После ее нажатия начнется процесс чтения таблиц.
-			
-			%Чтение таблиц реализовано с помощью сервиса prepare..., он берет данные из сессии, преобразует их в удобный для себя формат, а затем с помощью парсеров читает информацию из каждой таблицы. Парсеры написаны с соблюдением правил DRY и принципам наследования. В ходе парсинга ведется активная запись найденных ошибок и предупреждений, связанных с проблемами данных. 
-			
-			%Сам модуль для чтения таблиц вынесен в отдельный класс, который наследует от интерфейса. В коде везде указан интерфейс, что позволяет довольно быстро и удобно поменять тип файла, с которым работает программа с таблиц excel на что то другое простой заменой класса при инициализации объекта. Но важно то, что в любом случае работа парсинга завязана на классе DataFrame из библиотеки pandas. Непосредственное чтение таблицы с диска обязательно должно быть оформлено при помощи         with ExcelFile(file_path) as xls: чтобы не блокировать работу файла. В противном случае работа программы после чтения таблиц с диска не даст изменять рабочие файлы, заблокировав их что сделает невозможным итеративную работу по изменению раписания.
-			
-			%После чтения всех данных и последующего создания доменных объектов, проводится синхронизация статусов таблиц, которая изменит статус таблицы, если была выявлена какая либо проблема. Например, если файл не получилось открыть с диска, то статус таблицы поменяется BROKEN_PATH, и впоследствии это отобразится пользователю в интерфейсе и анализ не будет доступен, пока пользователь не поменяет таблицу. После синхронизации статусов данные таблицы расписания загружаются в сессию. После этого чтение таблиц завершено, на выход отдается датакласс, содержащий списки доменных объектов, а также проблемы, с которыми модуль столкнулся во время чтения и обработки данных
+		\section{Distribuce a instalace aplikace}
+			Pro praktické využití aplikace koncovými uživateli bylo nutné vyřešit její distribuci. Cílem bylo dodat program tak, aby běžný organizátor soutěže nemusel na svůj počítač instalovat interpret jazyka Python ani ručně stahovat potřebné závislosti.
 		
-		%\section{Репозиторий}
-			%После чтения данных программа составляет центральный репозиторий данных, который представляет собой класс, хранящий в себе структуры данных по всем сущностям танцевального конкурса. Тут содержится словарь айди-Соревнование, где лежат соревнования по их айди, также здесь находится словарь айди соревнования-список выступлений для этого соревнования, а также сэты с членами жюри и участниками.
-			
-			%Использование словарей значительно улучшает работу репозитория *перечислитить выгоды*. 
-			
-			%Репозиторий также содержит важные для работы системы правил функции, которые позволяют получать из него необходимые данные. Например, список выступлений танцора или члена жюри.
-			
-			%После составления репозитория обязательно проходит его валидация, которая включает в себя различные проверки, например то, что списки соревнований, выступлений и участников не пустые. Что количество заявленных раундов соревнования соответствует ихз количеству в расписании и так далее. Результатом проверки может быть ее успешное прохождение либо ошибка или предупреждение.
-			
-		%	В результате процесса составления репозитория получается сам репозиторий, а также отчет, содержащий все ошибки и предупреждения.
-			
-		%\section{Политика подготовленности данных}
-			%После составления репозитория и сбора всех ошибок и предупреждений в ходе обработки данных, проводится решение конкретно того, есть ли вообще смысл проводить анализ системой правил. По умолчанию данные проходят, в коде определены всего несколько условий для того, чтобы проверка не прошла.
-			
-		%\section{Система правил}
-			%Если данные успешно прошли через политику, то начинается обработка данных. 
+			Prvním pokusem bylo využití nástroje PyInstaller pro vytvoření jediného spustitelného souboru s příponou \texttt{.exe} (tzv. \textit{onefile} přístup). Během testování na běžných kancelářských počítačích se však tento přístup ukázal jako nepřijatelný. Doba spouštění programu trvala i několik minut (v některých případech až pět minut). Důvodem bylo, že PyInstaller v režimu jednoho souboru musel při každém spuštění nejprve rozbalit všechny objemné knihovny, zejména \texttt{PySide6} pro grafické rozhraní a \texttt{pandas} pro analýzu dat do dočasné složky na pevném disku, což proces neúměrně zpomalovalo.
 		
-		%\section{Дистрибуция}
+			Z tohoto důvodu byla zvolena jiná cesta. Nástroj PyInstaller byl překonfigurován pomocí souboru \texttt{schedule\_analyzer.spec} do režimu \textit{onedir}. V tomto režimu se vygeneruje složka obsahující hlavní spustitelný soubor a všechny knihovny, které jsou již předem rozbalené. Tím se zcela odstranila prodleva při startu aplikace. 
+		
+			Aby byla distribuce pro koncového uživatele stále pohodlná a působila profesionálně, je celá vygenerovaná složka následně zabalena do standardního instalačního programu pro systém Windows. K tomu byl využit nástroj Inno Setup 6 a konfigurační skript \texttt{schedule\_analyzer.iss}. Celý proces sestavení aplikace a tvorby instalátoru je navíc plně automatizován pomocí dávkových skriptů (\texttt{build\_exe.bat} a \texttt{build\_installer.bat}).
+		
+			Tento konečný způsob distribuce získal nejlepší ohlasy. Nabízí ideální poměr mezi uživatelským komfortem (standardní instalační průvodce, vytvoření zástupce na ploše) a okamžitou rychlostí jak prvního, tak každého dalšího spuštění programu.
+			
+			Závěrem je důležité zmínit, že ačkoliv je distribuce aktuálně zaměřena na systém Windows, samotná aplikace je vyvinuta jako multiplatformní. Během vývoje byl program spouštěn a testován ve vývojovém prostředí jak na operačním systému Windows, tak na macOS. Z důvodu absence bezprostřední potřeby nebyl instalátor pro platformu macOS zatím vygenerován. Zvolené technologie však tuto možnost plně podporují, a proto vytvoření instalačního balíčku pro systém macOS zůstává otevřené pro případné budoucí využití.
+			
+	
+		\section{Shrnutí implementace}
+			Implementace realizuje kompletní pipeline od načtení Excel tabulek až po pravidlovou analýzu a prezentaci výsledků. Důraz je kladen na odolné zpracování vstupů, průběžnou diagnostiku, oddělenou politiku připravenosti dat a konfigurovatelnou pravidlovou vrstvu.
+	
+			Výsledná aplikace podporuje praktický způsob práce vedoucího soutěže: opakované běhy nad měnícími se daty, znovupoužití mapování a srozumitelné výstupy pro rychlou korekci harmonogramu.
 
 	\chapter{Testování a ověření funkčnosti}
 
-	\section{Testovací strategie a reprodukovatelnost}
-	V této kapitole popíšu, jak jsem ověřoval správnost a spolehlivost aplikace. Současně uvedu podmínky, aby bylo možné testování nezávisle reprodukovat.
+		\section{Cíl a metodika testování}
+			Cílem této kapitoly je ověřit, že implementovaná aplikace funguje správně v reálných podmínkách, dokáže odhalit chyby v harmonogramu a bezpečně reaguje na nestandardní stavy a nekorektní vstupy. 
 
-	\subsection{Cíle a rozsah testování}
-	Vymezím testované části systému a kritéria úspěchu. Uvedu také oblasti, které nejsou ověřeny v plném rozsahu.
+			Pro testování bylo využito několik datových sad z reálných tanečních soutěží. Tím je zajištěno, že program pracuje s opravdovými daty, která mají provozní charakter a obsahují běžné nedokonalosti. Testování bylo rozděleno na tři hlavní části: ověření na standardních datech, testování analytické logiky pomocí záměrně upravených chyb a testování robustnosti programu vůči nestandardním situacím.
 
-	\subsection{Testovací data a podmínky běhu}
-	Popíšu použité datové sady, konfiguraci a testovací prostředí. Vysvětlím, proč jsou zvolené scénáře reprezentativní.
+		\section{Testování na reálných datových sadách}
+			V první fázi byly do programu nahrány původní, nijak neupravené datové sady. Každá sada obsahovala čtyři reálné tabulky (soutěže, soutěžící, porota a harmonogram). Tento test představoval ideální případ, takzvaný „happy day“ scénář, při kterém bylo provedeno korektní mapování všech sloupců a proces zpracování proběhl standardním způsobem.
 
-	\section{Testovací scénáře}
-	V této sekci představím konkrétní scénáře a jejich očekávané výsledky. Cílem je doložit správné chování systému při standardních i problémových vstupech.
+			Program ve všech případech úspěšně načetl všechny soubory, přečetl entity a sestavil interní doménový model bez pádu nebo kritických chyb. Analýza u těchto čistých dat proběhla úspěšně a podle očekávání nevykázala téměř žádná porušení, případně jen ojedinělá drobná upozornění. Tento výsledek potvrzuje, že reálné harmonogramy z proběhlých soutěží byly sestaveny kvalitně a že aplikace zbytečně nehlásí falešné chyby (tzv. false positives).
 
-	\subsection{Scénáře úspěšné analýzy}
-	Popíšu scénáře s validními daty, kde analýza proběhne úspěšně. Ověřím, že výsledky odpovídají očekávání.
+		\section{Ověření analytické logiky pomocí upravených dat}
 
-	\subsection{Scénáře blokace a chybových stavů}
-	Popíšu scénáře s nekvalitními daty, kdy je analýza blokována nebo selže. Ověřím správnost důvodů blokace i jejich prezentace uživateli.
+			\subsection{Příprava testovacích dat}
+				Pro ověření detekčních schopností programu byla jedna reálná datová sada zkopírována a záměrně upravena. Do této sady byly vneseny dvě zásadní chyby:
+				\begin{itemize}
+					\item \textbf{Chyba v porotě:} V tabulce poroty byli pro všechny soutěže celého dne určeni pouze tři porotci. To znamená, že tito porotci by museli hodnotit všechna vystoupení, což by potenciálně vedlo k překročení maximální povolené doby nepřetržitého rozhodování.
+					\item \textbf{Chyba v harmonogramu:} V časovém rozvrhu byla přesunuta dvě vystoupení různých disciplín u stejných soutěžících tak, aby následovala těsně za sebou. Tím by mělo dojít k porušení pravidla o minimálním čase na převlečení kostýmu.
+				\end{itemize}
 
-	\subsection{Scénáře prezentace výsledků}
-	Ověřím správnost zobrazení porušení v aplikaci i v reportech. Uvedu, zda jsou výsledky konzistentní napříč všemi výstupy.
+			\subsection{Výsledky detekce a vliv parametrů}
+				Po načtení této upravené sady program ihned detekoval problém s chybějícím časem na převlečení kostýmu a správně toto porušení zobrazil ve výsledném reportu. 
 
-	\section{Vyhodnocení výsledků testování}
-	V této sekci shrnu dosažené výsledky a jejich praktický význam. Zhodnotím přínos nástroje vůči ruční kontrole a limity provedeného ověření.
+				Zajímavý výsledek ale nastal u testování poroty. Při standardním (výchozím) nastavení konfiguračního souboru program žádné porušení u poroty nenašel. Výchozí nastavení totiž definuje, že porotci stačí 10 minut na odpočinek, aby se mu vynuloval časovač nepřetržitého hodnocení. Jelikož i upravený harmonogram přirozeně obsahoval pauzy mezi bloky delší než 10 minut (například vyhlašování výsledků), program to vyhodnotil tak, že byl požadavek na minimální dobu odpočinku splněn.
+
+				Následně byl konfigurační soubor upraven a požadovaný čas na odpočinek poroty byl zvýšen z 10 minut na 30 minut. Po opětovném spuštění analýzy nad stejnými daty už program přirozené krátké pauzy neuznal jako dostatečný odpočinek a správně vyhodnotil, že tito tři porotci překročili maximální povolený čas nepřetržité práce. Porušení bylo klasifikováno jako kritické a objevilo se ve výpisu chyb.
+
+				Tento test prakticky prokazuje, jak důležitá je parametrizace pravidel a že flexibilní konfigurace umožňuje programu správně reagovat na různé organizační požadavky.
+
+		\section{Testování robustnosti a stability aplikace}
+			Kromě správnosti samotné analýzy je klíčovou vlastností aplikace její stabilita při zadání nekorektních vstupů nebo při nečekaných změnách vstupních souborů. Z tohoto důvodu byly provedeny dva testovací scénáře zaměřené na odolnost programu.
+
+			\subsection{Reakce na nesprávné mapování}
+				V prvním scénáři byla do programu nahrána reálná data, ale při nastavování mapování byl úmyslně vybrán nesprávný sloupec. Konkrétně byl v tabulce harmonogramu místo sloupce s časem začátku vystoupení vybrán sloupec obsahující textová jména.
+
+				Program v takovém případě neukončil svůj běh chybou (nedošlo k pádu aplikace). Během fáze parsování a validace repozitáře bezpečně posbíral všechny chyby čtení. Politika připravenosti dat (Readiness policy) tyto chyby vyhodnotila jako blokující a zakázala spuštění pravidlové analýzy. Uživatel byl upozorněn vyskakovacím oknem a mohl si všechny zjištěné problémy přehledně prohlédnout v záložce \textit{Kvalita dat}.
+
+			\subsection{Změna stavu souborů mezi spuštěními}
+				Ve druhém scénáři byla otestována správa relace (session). Do programu byly načteny tabulky a proces byl uložen. Následně byl program ukončen a jeden z Excel souborů byl z disku smazán.
+
+				Po opětovném spuštění programu se načetla uložená relace a aplikace provedla kontrolu stavu tabulek. V uživatelském rozhraní se u chybějícího souboru okamžitě zobrazil stav indikující, že soubor není dostupný. Tlačítko pro spuštění analýzy zůstalo zablokované. Aby mohl uživatel pokračovat, musel chybějící soubor znovu vybrat přes rozhraní a projít opětovným mapováním. Tento test ověřil, že správa stavů funguje korektně a nenechá uživatele spustit analýzu nad neexistujícími daty.
+
+		\section{Shrnutí výsledků testování}
+				Testování potvrdilo, že aplikace plní svůj účel. Zvládá plynule načítat reálná data, správně detekuje konflikty v harmonogramu a díky konfiguračnímu souboru umožňuje ladit citlivost pravidel. Aplikace je zároveň odolná vůči nestandardním vstupům a v případě problému uživatele srozumitelně navede k nápravě.
+
 
 	\chapter{Diskuse}
-
-	\section{Přínosy navrženého řešení}
-	V této sekci shrnu hlavní přínosy aplikace z pohledu přesnosti, přehlednosti a efektivity kontroly harmonogramu. Uvedu, v čem řešení nejvíce pomáhá organizátorovi soutěže.
-
-	\section{Omezení a rizika nasazení}
-	Popíšu limity řešení a rizika jeho použití v odlišných podmínkách. Navážu na omezení implementace a jejich dopad na interpretaci výsledků.
-
-	\section{Možnosti dalšího rozvoje}
-	Navrhnu konkrétní směry budoucího rozšíření systému. Vysvětlím, jak by tato rozšíření zvýšila praktickou hodnotu aplikace.
+	
+		\section{Přínosy navrženého řešení}
+			Hlavním přínosem navrženého řešení je plná automatizace procesu, který byl doposud prováděn manuálně. V analytické části práce bylo ukázáno, že ruční kontrola harmonogramu pomocí tištěných papírů a tabulek je časově velmi náročná a náchylná k lidským chybám. Výsledná aplikace tento problém efektivně řeší. Během několika sekund dokáže zpracovat velký objem dat, propojit složité vazby mezi soutěžícími, porotou a jednotlivými vystoupeními a odhalit skryté časové konflikty. Organizátorovi tak šetří cenný čas v kritickém období těsně před začátkem akce.
+	
+			Dalším významným přínosem je podpora iterativního způsobu práce. Aplikace je technicky navržena tak, aby při čtení dat neblokovala zdrojové soubory (využitím kontextového manažeru při parsování). Vedoucí soutěže tak může mít aplikaci i zdrojový soubor s harmonogramem otevřené současně. Jakmile v aplikaci objeví porušení pravidel, může daný problém v tabulce okamžitě upravit, soubor uložit a v aplikaci jedním kliknutím spustit novou kontrolu. Tento plynulý cyklus ladění rozvrhu přesně odpovídá reálným potřebám z praxe.
+	
+			Z hlediska samotné kontroly přináší systém vysokou míru objektivity a transparentnosti. Analytická pravidla se aplikují konzistentně na všechny účastníky i členy poroty bez výjimky. Díky zavedení konfiguračního souboru má navíc organizátor plnou kontrolu nad tím, jaké prahové hodnoty jsou pro danou soutěž ještě přijatelné. Může snadno upravit minimální čas na odpočinek nebo čas na převlečení kostýmu podle reálné situace na místě, a program se tomuto nastavení ihned přizpůsobí.
+	
+			V neposlední řadě je velkým plusem celková robustnost řešení a ochrana proti nekvalitním datům. Aplikace počítá s tím, že provozní tabulky často obsahují překlepy, prázdné buňky nebo chybějící vazby. Místo toho, aby při neočekávaném vstupu aplikace spadla, bezpečně tyto problémy odchytí a přehledně je zobrazí uživateli v záložce věnované kvalitě dat. Uživatel je tak chráněn před tím, aby spoléhal na výsledky analýzy, která by proběhla nad neúplnými nebo poškozenými daty.
+	
+		\section{Omezení a rizika nasazení}
+			Každé softwarové řešení má svá přirozená omezení a rizika při nasazení do reálného provozu. U této aplikace je jedním z hlavních limitů silná závislost na kvalitě a konzistenci vstupních dat. Systém funguje jako přesný validátor, ale jeho výstupy jsou přímo závislé na datech, která do něj uživatel nahraje. Pokud exportované tabulky obsahují zásadní strukturální chyby, nekompletní záznamy nebo narušené vazby mezi identifikátory, politika připravenosti dat analýzu oprávněně zablokuje. V takovém případě musí organizátor zdrojová data nejprve ručně opravit, což může v časovém stresu během soutěže představovat komplikaci.
+	
+			Dalším omezením je nutnost manuálního zásahu uživatele při počátečním nastavování mapování sloupců. Aplikace v současné verzi nedokáže plně automaticky rozpoznat sémantiku jednotlivých sloupců a sama provést kompletní propojení entit pouze na základě analýzy struktury tabulky nebo obsahu buněk. Ačkoliv systém nabízí pomocné funkce, jako je například automatická detekce prefixů pro přiřazení poroty, uživatel stále musí provést prvotní kontrolu a mapování ručně. Plně automatické rozpoznávání vstupů by bylo technicky proveditelné pomocí pokročilé analýzy datových typů a obsahu, aktuálně je však tento krok z důvodu spolehlivosti ponechán na uživateli.
+	
+			Významným specifikem z hlediska širšího využití je také úzká specializace aplikace na konkrétní doménu. Nástroj byl od počátku navržen a optimalizován primárně pro formáty pracovních tabulek a pravidla Českého svazu tanečního sportu (ČSTS). Pokud by měl být systém nasazen na soutěžích jiných tanečních organizací, mezinárodních federací nebo v úplně jiných sportovních odvětvích, pravděpodobně by narazil na nekompatibilitu vstupních formátů. Pro takové použití by bylo nutné přepracovat vstupní vrstvu aplikace (parsery) a pravděpodobně upravit i vyhodnocovací logiku některých pravidel.
+	
+		\section{Možnosti dalšího rozvoje}
+			Navržené a implementované řešení představuje stabilní základ pro kontrolu harmonogramu, nabízí se však řada možností pro jeho další budoucí rozvoj a rozšiřování funkcionality.
+	
+			V návaznosti na zmíněná omezení by prvním vylepšením mohla být plná automatizace mapování sloupců. Systém by mohl využívat heuristické metody k analýze hlaviček sloupců a datových typů jednotlivých buněk. Na základě této analýzy by program samostatně rozpoznal strukturu nahrané tabulky a automaticky provedl mapování bez nutnosti zásahu uživatele.
+	
+			Dalším logickým krokem je rozšíření aplikace z pasivního validátoru na aktivního pomocníka. Program by mohl nejen detekovat vzniklé časové konflikty, ale také navrhovat konkrétní kroky k jejich odstranění. Algoritmus by například dokázal uživateli doporučit posunout určitý soutěžní blok o patnáct minut nebo prohodit pořadí dvou disciplín tak, aby se minimalizoval počet porušení pravidel u poroty či soutěžících.
+	
+			Největším potenciálním rozvojem by byla transformace aplikace do komplexního nástroje pro tvorbu a správu harmonogramu. Organizátor by již nemusel upravovat data v externím tabulkovém procesoru (Excelu), ale mohl by rozvrh tvořit přímo v grafickém prostředí aplikace. Tento přístup by umožnil implementovat analýzu v reálném čase – program by okamžitě vizuálně upozorňoval na vznikající chyby již během přesouvání nebo plánování jednotlivých soutěží. S tím úzce souvisí i zavedení komplexní správy projektů a verzování harmonogramů, díky kterému by vedoucí soutěže mohl snadno ukládat různé varianty plánu, porovnávat je mezi sebou a bezpečně se vracet k předchozím funkčním verzím.
 
 	\chapter{Závěr}
-	V závěru stručně zrekapituluji splnění cílů práce a hlavní přínosy výsledné aplikace. Uzavřu práci shrnutím klíčových výsledků a návazností pro další vývoj.
+	
+		Cílem této práce bylo navrhnout a vytvořit softwarový nástroj pro automatizovanou kontrolu harmonogramu tanečních soutěží, který by nahradil zdlouhavou a chybovou ruční práci organizátorů. Tento cíl se podařilo úspěšně splnit.
+	
+		V analytické části byl detailně zobrazen proces organizace soutěže a byla identifikována klíčová pravidla, která určují validitu časového rozvrhu. Na základě těchto zjištění byl navržen systém zpracování dat, který logicky odděluje načítání vstupních tabulek, sestavení doménového modelu a samotnou pravidlovou kontrolu. Tento návrh se stal pevným základem pro následný vývoj.
+	
+		Výsledkem práce je plně funkční desktopová aplikace. Pro snadné nasazení v praxi je program dodáván ve formě standardního instalačního průvodce pro operační systém Windows, takže nevyžaduje od organizátorů instalaci žádných dalších technických závislostí. Program dokáže bezpečně načítat reálná provozní data z tabulek, poskytuje uživateli intuitivní rozhraní pro mapování sloupců a řeší chybějící nebo nekorektní vstupy dříve, než by mohly narušit samotnou analýzu. Implementovaný analytický modul spolehlivě vyhledává časové konflikty, jako jsou nedostatečné pauzy pro porotu nebo překrývající se vystoupení soutěžících. Zjištěná porušení jsou následně přehledně vizualizována jak přímo v uživatelském rozhraní aplikace, tak formou exportovaného HTML reportu.
+
+		Během testování na reálných datových sadách z proběhlých soutěží aplikace prokázala svou praktickou využitelnost a vysokou stabilitu. Program úspěšně detekoval záměrně vložené chyby v harmonogramu a díky konfiguračnímu souboru správně reagoval na změny prahových hodnot pro jednotlivá pravidla. Zároveň bylo ověřeno, že systém nepadá při uživatelských chybách nebo nestandardních stavech souborů, ale poskytuje srozumitelnou zpětnou vazbu.
+	
+		Vytvořená aplikace představuje pro vedoucí tanečních soutěží cenný nástroj. Výrazně zrychluje proces přípravy soutěže, zvyšuje objektivitu kontrol a chrání organizátory před rizikem zpoždění. Zároveň celá architektura programu tvoří stabilní základ, který je připravený na případné budoucí rozšiřování, ať už o nové typy analytických pravidel, nebo o pokročilejší funkce pro přímou editaci a plánování harmonogramů.
 	
 	\backmatter
 	\printbibliography
 	\setbackpageqrcode
 	\backpage
+	
 \end{document}

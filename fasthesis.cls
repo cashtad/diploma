@@ -405,13 +405,15 @@
 	
 	\def\FASThesis@auth@statement@label{Prohlášení}
 	\def\FASThesis@auth@statement@text{Prohlašuji, že jsem tuto \FASThesis@type@text@acc{}
-		\FASThesis@wrotethis{} samostatně a výhradně s~použitím citovaných pramenů, literatury a dalších
-		odborných zdrojů. Tato práce nebyla využita k~získání jiného nebo stejného akademického
-		titulu.\newline\par\noindent%
-		Beru na vědomí, že se na moji práci vztahují práva a povinnosti vyplývající ze zákona
-		č.~121/2000 Sb., zákon o právu autorském, o právech souvisejících s právem autorským a o změně některých zákonů (autorský zákon) v platném znění, a zejména skutečnost, že Západočeská
-		univerzita v~Plzni má právo na uzavření licenční smlouvy o užití této práce jako školního
-		díla podle § 60 odst. 1 autorského zákona.}
+\FASThesis@wrotethis{} samostatně a výhradně s~použitím citovaných pramenů, literatury a dalších
+odborných zdrojů. Tato práce nebyla využita k~získání jiného nebo stejného akademického
+titulu.\par%
+Používal jsem nástroj DeepL Translator (https://www.deepl.com/translator) pro překlad vybraných částí textu z ruského jazyka do českého jazyka za účelem zajištění jazykové správnosti a stylistické kvality odborného textu. Po použití tohoto nástroje jsem všechny výstupy pečlivě zkontroloval, upravil podle potřeby a přebírám plnou odpovědnost za výsledný obsah práce. \par%
+Beru na vědomí, že se na moji práci vztahují práva a povinnosti vyplývající ze zákona
+č.~121/2000 Sb., zákon o právu autorském, o právech souvisejících s právem autorským
+a o změně některých zákonů (autorský zákon) v~platném znění, a zejména skutečnost,
+že Západočeská univerzita v~Plzni má právo na uzavření licenční smlouvy o užití této
+práce jako školního díla podle § 60 odst. 1 autorského zákona.}
 	
 	\def\FASThesis@trademark@statement{V textu jsou použity názvy produktů, technologií,
 	služeb, aplikací, společností apod., které mohou být ochrannými známkami nebo registrovanými
