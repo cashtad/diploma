@@ -407,8 +407,10 @@
 	\def\FASThesis@auth@statement@text{Prohlašuji, že jsem tuto \FASThesis@type@text@acc{}
 \FASThesis@wrotethis{} samostatně a výhradně s~použitím citovaných pramenů, literatury a dalších
 odborných zdrojů. Tato práce nebyla využita k~získání jiného nebo stejného akademického
-titulu.\par%
-Používal jsem nástroj DeepL Translator (https://www.deepl.com/translator) pro překlad vybraných částí textu z ruského jazyka do českého jazyka za účelem zajištění jazykové správnosti a stylistické kvality odborného textu. Po použití tohoto nástroje jsem všechny výstupy pečlivě zkontroloval, upravil podle potřeby a přebírám plnou odpovědnost za výsledný obsah práce. \par%
+titulu.
+
+Používal jsem nástroj DeepL Translator (https://www.deepl.com/translator) pro překlad vybraných částí textu z ruského jazyka do českého jazyka za účelem zajištění jazykové správnosti a stylistické kvality odborného textu. Po použití tohoto nástroje jsem všechny výstupy pečlivě zkontroloval, upravil podle potřeby a přebírám plnou odpovědnost za výsledný obsah práce.
+
 Beru na vědomí, že se na moji práci vztahují práva a povinnosti vyplývající ze zákona
 č.~121/2000 Sb., zákon o právu autorském, o právech souvisejících s právem autorským
 a o změně některých zákonů (autorský zákon) v~platném znění, a zejména skutečnost,
